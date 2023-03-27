@@ -31,7 +31,16 @@ impl Parser {
 	fn expr(&self) -> Node<'static> {
 		let result = self.term();
 
-		todo!()
+		loop {
+			let token = self.tokens.peek();
+			match token {
+				Some(Token::Add(x)) => result = Node::Add(&result, &self.term()),
+				Some(Token::Sub(x)) => result = Node::Sub(&result, &self.term()),
+				_ => break,
+			}
+			self.tokens.next();
+		}
+		result
 	}
 
 	fn term(&self) -> Node<'static> {
