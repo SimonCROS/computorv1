@@ -17,22 +17,6 @@ impl Parser {
         }
     }
 
-	fn factor(&self) -> Node<'static> {
-		todo!()
-	}
-
-	fn term(&self) -> Node<'static> {
-		let result = self.factor();
-		
-		todo!()
-	}
-
-	fn expr(&self) -> Node<'static> {
-		let result = self.term();
-
-		todo!()
-	}
-
     pub fn parse(mut self) -> Result<Node<'static>, String> {
         let mut tokens: Vec<Token> = Vec::<Token>::new();
         
@@ -43,4 +27,20 @@ impl Parser {
 
 		Ok(root)
     }
+
+	fn expr(&self) -> Node<'static> {
+		let result = self.term();
+
+		todo!()
+	}
+
+	fn term(&self) -> Node<'static> {
+		let result = self.factor();
+		
+		todo!()
+	}
+
+	fn factor(&self) -> Node<'static> {
+		todo!()
+	}
 }

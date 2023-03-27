@@ -15,29 +15,18 @@ impl<'a> Lexer<'a> {
         }
     }
 
-    fn read_identifier(&mut self) -> Option<String> {
-        let mut ret: String = String::new();
+    pub fn tokenize(mut self) -> Result<Vec<Token>, String> {
+        let mut tokens: Vec<Token> = Vec::<Token>::new();
         loop {
-            match self.chars.next_if(|&c| c.is_alphabetic() || c == '_') {
-                Some(c) => ret.push(c),
-                None => break,
+            match self.next_token() {
+                Ok(token) => match token {
+                    Token::EOF => break,
+                    _ => tokens.push(token),
+                },
+                Err(v) => return Err(v),
             }
         }
-        Some(ret).filter(|s| !s.is_empty())
-    }
-
-    fn read_number(&mut self) -> Option<Result<f32, String>> {
-        let mut ret: String = String::new();
-        loop {
-            match self.chars.next_if(|&c| c.is_ascii_digit() || c == '.') {
-                Some(c) => ret.push(c),
-                None => break,
-            }
-        }
-        let tmp = ret.clone();
-        Some(ret)
-            .filter(|s| !s.is_empty())
-            .map(|s| s.parse::<f32>().map_err(|_| tmp))
+        Ok(tokens)
     }
 
     fn next_token(&mut self) -> Result<Token, String> {
@@ -72,17 +61,28 @@ impl<'a> Lexer<'a> {
         Ok(tok)
     }
 
-    pub fn tokenize(mut self) -> Result<Vec<Token>, String> {
-        let mut tokens: Vec<Token> = Vec::<Token>::new();
+    fn read_identifier(&mut self) -> Option<String> {
+        let mut ret: String = String::new();
         loop {
-            match self.next_token() {
-                Ok(token) => match token {
-                    Token::EOF => break,
-                    _ => tokens.push(token),
-                },
-                Err(v) => return Err(v),
+            match self.chars.next_if(|&c| c.is_alphabetic() || c == '_') {
+                Some(c) => ret.push(c),
+                None => break,
             }
         }
-        Ok(tokens)
+        Some(ret).filter(|s| !s.is_empty())
+    }
+
+    fn read_number(&mut self) -> Option<Result<f32, String>> {
+        let mut ret: String = String::new();
+        loop {
+            match self.chars.next_if(|&c| c.is_ascii_digit() || c == '.') {
+                Some(c) => ret.push(c),
+                None => break,
+            }
+        }
+        let tmp = ret.clone();
+        Some(ret)
+            .filter(|s| !s.is_empty())
+            .map(|s| s.parse::<f32>().map_err(|_| tmp))
     }
 }
