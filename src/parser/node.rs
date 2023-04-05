@@ -1,5 +1,6 @@
 use std::fmt::Debug;
 
+#[derive(Clone)]
 pub enum Node {
     Equal(Box<Node>, Box<Node>),
     Add(Box<Node>, Box<Node>),

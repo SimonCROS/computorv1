@@ -39,6 +39,12 @@ fn reduce(node: &mut Box<Node>) {
             if let Node::Number(l) = l.as_mut() {
                 if let Node::Number(r) = r.as_mut() {
                     **node = Node::Number(*l * *r);
+                } else if *l == 0f32 {
+                    **node = Node::Number(0f32);
+                }
+            } else if let Node::Number(r) = r.as_mut() {
+                if *r == 0f32 {
+                    **node = Node::Number(0f32);
                 }
             }
         }
@@ -47,16 +53,29 @@ fn reduce(node: &mut Box<Node>) {
             reduce(r);
             if let Node::Number(l) = l.as_mut() {
                 if let Node::Number(r) = r.as_mut() {
+                    if *r == 0f32 {
+                        panic!("Division by zero !");
+                    }
                     **node = Node::Number(*l / *r);
+                } else if *l == 0f32 {
+                    **node = Node::Number(0f32);
+                }
+            } else if let Node::Number(r) = r.as_mut() {
+                if *r == 0f32 {
+                    panic!("Division by zero !");
                 }
             }
         }
         Node::Pow(l, r) => {
             reduce(l);
             reduce(r);
-            if let Node::Number(l) = l.as_mut() {
-                if let Node::Number(r) = r.as_mut() {
+            if let Node::Number(r) = r.as_mut() {
+                if let Node::Number(l) = l.as_mut() {
                     **node = Node::Number((*l).powf(*r));
+                } else if *r == 0f32 {
+                    **node = Node::Number(1f32);
+                } else if *r == 1f32 {
+                    **node = (**l).clone();
                 }
             }
         }
