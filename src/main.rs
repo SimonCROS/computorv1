@@ -4,10 +4,71 @@ use std::{
 };
 
 use lexer::Lexer;
-use parser::Parser;
+use parser::{Parser, node::Node};
 
 mod lexer;
 mod parser;
+
+fn reduce(node: &mut Box<Node>) {
+    match node.as_mut() {
+        Node::Equal(l, r) => {
+            reduce(l);
+            reduce(r);
+        }
+        Node::Add(l, r) => {
+            reduce(l);
+            reduce(r);
+            if let Node::Number(l) = l.as_mut() {
+                if let Node::Number(r) = r.as_mut() {
+                    **node = Node::Number(*l + *r);
+                }
+            }
+        }
+        Node::Sub(l, r) => {
+            reduce(l);
+            reduce(r);
+            if let Node::Number(l) = l.as_mut() {
+                if let Node::Number(r) = r.as_mut() {
+                    **node = Node::Number(*l - *r);
+                }
+            }
+        }
+        Node::Mul(l, r) => {
+            reduce(l);
+            reduce(r);
+            if let Node::Number(l) = l.as_mut() {
+                if let Node::Number(r) = r.as_mut() {
+                    **node = Node::Number(*l * *r);
+                }
+            }
+        }
+        Node::Div(l, r) => {
+            reduce(l);
+            reduce(r);
+            if let Node::Number(l) = l.as_mut() {
+                if let Node::Number(r) = r.as_mut() {
+                    **node = Node::Number(*l / *r);
+                }
+            }
+        }
+        Node::Pow(l, r) => {
+            reduce(l);
+            reduce(r);
+            if let Node::Number(l) = l.as_mut() {
+                if let Node::Number(r) = r.as_mut() {
+                    **node = Node::Number((*l).powf(*r));
+                }
+            }
+        }
+        Node::Negate(v) => {
+            reduce(v);
+            if let Node::Number(v) = v.as_mut() {
+                **node = Node::Number(-(*v));
+            }
+        }
+        _ => ()
+    }
+}
 
 fn main() {
     let args: Args = env::args();
@@ -22,7 +83,11 @@ fn main() {
         Ok(tokens) => {
             let parser = Parser::new(tokens);
             match parser.parse() {
-                Ok(root) => {
+                Ok(mut root) => {
+                    println!("Before:");
+                    println!("{:?}", root);
+                    reduce(&mut root);
+                    println!("After:");
                     println!("{:?}", root);
                 },
                 Err(v) => {
