@@ -35,6 +35,7 @@ impl<'a> Parser {
 			return None;
 		}
 
+		// Don't do loop so there is at most one assignation
 		let token = self.tokens.peek();
 		match token {
 			Some(Token::Equal(_)) => {
@@ -44,7 +45,7 @@ impl<'a> Parser {
 					None => return None,
 				}
 			},
-			_ => return lhs,
+			_ => return None, // Force at least one assignation
 		}
 	}
 
