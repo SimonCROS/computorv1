@@ -89,6 +89,10 @@ fn reduce(node: &mut Box<Node>) {
     }
 }
 
+fn sort_polynominal(node: &mut Box<Node>) {
+    
+}
+
 fn main() {
     let args: Args = env::args();
     if args.len() != 2 {
@@ -103,11 +107,9 @@ fn main() {
             let parser = Parser::new(tokens);
             match parser.parse() {
                 Ok(mut root) => {
-                    println!("Before:");
-                    println!("{:?}", root);
                     reduce(&mut root);
-                    println!("After:");
-                    println!("{:?}", root);
+                    println!("Reduced - {}", root);
+                    sort_polynominal(&mut root);
                 },
                 Err(v) => {
                     eprintln!("{}", v);
