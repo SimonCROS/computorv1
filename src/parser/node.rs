@@ -18,10 +18,10 @@ impl Display for Node {
         match self {
             Self::Equal(l, r) => write!(f, "{} = {}", l, r),
             Self::Add(l, r) => {
-                write!(f, "{} + {}", l, r)
+                write!(f, "({} + {})", l, r)
             },
             Self::Sub(l, r) => {
-                write!(f, "{} - {}", l, r)
+                write!(f, "({} - {})", l, r)
             },
             Self::Mul(l, r) => {
                 if let Node::Identifier(l) = l.as_ref() {
@@ -34,34 +34,10 @@ impl Display for Node {
                         return write!(f, "{}{}", l, r);
                     }
                 }
-                let lres;
-                let rres;
-                if matches!(l.as_ref(), Node::Add(_, _)) || matches!(l.as_ref(), Node::Sub(_, _)) {
-                    lres = format!("({})", l);
-                } else {
-                    lres = format!("{}", l);
-                }
-                if matches!(r.as_ref(), Node::Add(_, _)) || matches!(r.as_ref(), Node::Sub(_, _)) {
-                    rres = format!("({})", r);
-                } else {
-                    rres = format!("{}", r);
-                }
-                write!(f, "{} * {}", lres, rres)
+                write!(f, "({} * {})", l, r)
             },
             Self::Div(l, r) => {
-                let lres;
-                let rres;
-                if matches!(l.as_ref(), Node::Add(_, _)) || matches!(l.as_ref(), Node::Sub(_, _)) {
-                    lres = format!("({})", l);
-                } else {
-                    lres = format!("{}", l);
-                }
-                if matches!(r.as_ref(), Node::Add(_, _)) || matches!(r.as_ref(), Node::Sub(_, _)) {
-                    rres = format!("({})", r);
-                } else {
-                    rres = format!("{}", r);
-                }
-                write!(f, "{} / {}", lres, rres)
+                write!(f, "({} / {})", l, r)
             },
             Self::Pow(l, r) => {
                 if let Node::Number(r) = r.as_ref() {
