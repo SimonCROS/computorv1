@@ -17,7 +17,7 @@ impl<'a> Parser {
         }
     }
 
-    pub fn parse(mut self) -> Result<Box<Node>, String> {
+    pub fn parse(mut self) -> Result<(Box<Node>, Box<Node>), String> {
 		let root = self.assignation();
 
 		if self.tokens.peek().is_some() {
@@ -26,7 +26,9 @@ impl<'a> Parser {
 		if root.is_none() {
 			return Err(format!("Expected token at end"));
 		}
-		Ok(root.unwrap())
+		if let Node::Equal(lhs, rhs) = root {
+			Ok(root.unwrap())
+		}
     }
 
 	fn assignation(&mut self) -> Option<Box<Node>> {
