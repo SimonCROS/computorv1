@@ -26,9 +26,10 @@ impl<'a> Parser {
 		if root.is_none() {
 			return Err(format!("Expected token at end"));
 		}
-		if let Node::Equal(lhs, rhs) = root {
-			Ok(root.unwrap())
+		if let Node::Equal(lhs, rhs) = *root.unwrap() {
+			return Ok((lhs, rhs));
 		}
+		panic!("This should never happen.");
     }
 
 	fn assignation(&mut self) -> Option<Box<Node>> {
