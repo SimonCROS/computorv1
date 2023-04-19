@@ -10,7 +10,7 @@ pub struct Parser {
     tokens: Peekable<IntoIter<Token>>,
 }
 
-impl<'a> Parser {
+impl Parser {
     pub fn new(tokens: Vec<Token>) -> Self {
         Self {
             tokens: tokens.into_iter().peekable(),
@@ -132,7 +132,7 @@ impl<'a> Parser {
 		return Some(result);
 	}
 
-	fn term<'b>(&mut self) -> Option<Box<Node>> {
+	fn term(&mut self) -> Option<Box<Node>> {
 		let mut result: Option<Box<Node>>;
 
 		let token = self.tokens.peek();
