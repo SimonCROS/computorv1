@@ -9,33 +9,39 @@ use parser::{node::Node, Parser};
 mod lexer;
 mod parser;
 
-fn reduce(node: &mut Box<Node>) {
+fn simplify(node: &mut Box<Node>) {
     match node.as_mut() {
         Node::Equal(l, r) => {
-            reduce(l);
-            reduce(r);
+            simplify(l);
+            simplify(r);
         }
         Node::Add(l, r) => {
-            reduce(l);
-            reduce(r);
+            simplify(l);
+            simplify(r);
             if let Node::Number(l) = l.as_mut() {
                 if let Node::Number(r) = r.as_mut() {
                     **node = Node::Number(*l + *r);
+                } else if *l == 0f32 {
+                    **node = (**r).clone();
                 }
+            } else if matches!(r.as_mut(), Node::Number(v) if *v == 0f32) {
+                **node = (**l).clone();
             }
         }
         Node::Sub(l, r) => {
-            reduce(l);
-            reduce(r);
+            simplify(l);
+            simplify(r);
             if let Node::Number(l) = l.as_mut() {
                 if let Node::Number(r) = r.as_mut() {
                     **node = Node::Number(*l - *r);
                 }
+            } else if matches!(r.as_mut(), Node::Number(v) if *v == 0f32) {
+                **node = (**l).clone();
             }
         }
         Node::Mul(l, r) => {
-            reduce(l);
-            reduce(r);
+            simplify(l);
+            simplify(r);
             if let Node::Number(l) = l.as_mut() {
                 if *l == 0f32 {
                     **node = Node::Number(0f32);
@@ -49,8 +55,8 @@ fn reduce(node: &mut Box<Node>) {
             }
         }
         Node::Div(l, r) => {
-            reduce(l);
-            reduce(r);
+            simplify(l);
+            simplify(r);
             if let Node::Number(l) = l.as_mut() {
                 if let Node::Number(r) = r.as_mut() {
                     if *r == 0f32 {
@@ -69,8 +75,8 @@ fn reduce(node: &mut Box<Node>) {
             }
         }
         Node::Pow(l, r) => {
-            reduce(l);
-            reduce(r);
+            simplify(l);
+            simplify(r);
             if let Node::Number(r) = r.as_mut() {
                 if let Node::Number(l) = l.as_mut() {
                     **node = Node::Number((*l).powf(*r));
@@ -82,9 +88,11 @@ fn reduce(node: &mut Box<Node>) {
             }
         }
         Node::Negate(v) => {
-            reduce(v);
+            simplify(v);
             if let Node::Number(v) = v.as_mut() {
                 **node = Node::Number(-(*v));
+            } else if let Node::Negate(v) = v.as_mut() {
+                **node = (**v).clone();
             }
         }
         _ => (),
@@ -135,6 +143,7 @@ fn sort_polynominal(node: &mut Box<Node>, count: bool) -> f32 {
             let rdeg = sort_polynominal(r, count);
             if rdeg > ldeg {
                 **node = Node::Add(Box::new(Node::Negate((*r).clone())), (*l).clone());
+                simplify(node);
                 return rdeg;
             }
             ldeg
@@ -173,10 +182,10 @@ fn main() {
                         "Full\t- \x1b[33;1m{}\x1b[0m \x1b[31;1m=\x1b[0m \x1b[32;1m{}\x1b[0m",
                         lhs, rhs
                     );
-                    reduce(&mut lhs);
-                    reduce(&mut rhs);
+                    simplify(&mut lhs);
+                    simplify(&mut rhs);
                     println!(
-                        "Reduced\t- \x1b[33;1m{}\x1b[0m \x1b[31;1m=\x1b[0m \x1b[32;1m{}\x1b[0m",
+                        "Simpl.\t- \x1b[33;1m{}\x1b[0m \x1b[31;1m=\x1b[0m \x1b[32;1m{}\x1b[0m",
                         lhs, rhs
                     );
                     let degree = sort_polynominal(&mut lhs, false);
