@@ -1,6 +1,5 @@
 use std::{
     env::{self, Args},
-    mem::swap,
     process::exit,
 };
 
@@ -55,7 +54,8 @@ fn reduce(node: &mut Box<Node>) {
             if let Node::Number(l) = l.as_mut() {
                 if let Node::Number(r) = r.as_mut() {
                     if *r == 0f32 {
-                        panic!("Division by zero !");
+                        eprintln!("Cannot compute `{}`: division by zero !", node);
+                        exit(1);
                     }
                     **node = Node::Number(*l / *r);
                 } else if *l == 0f32 {
@@ -63,7 +63,8 @@ fn reduce(node: &mut Box<Node>) {
                 }
             } else if let Node::Number(r) = r.as_mut() {
                 if *r == 0f32 {
-                    panic!("Division by zero !");
+                    eprintln!("Cannot compute `{}`: division by zero !", node);
+                    exit(1);
                 }
             }
         }
@@ -143,14 +144,36 @@ fn sort_polynominal(node: &mut Box<Node>, count: bool) -> f32 {
         Node::Identifier(_) => 1f32,
         Node::Pow(l, r) => {
             let ldeg = sort_polynominal(l, count);
-            let rdeg = sort_polynominal(r, true);
-            if rdeg > ldeg {
-                return rdeg;
+            let rdeg = sort_polynominal(r, count);
+            if rdeg != 0f32 {
+                eprintln!(
+                    "`{}` is not a valid polynomial expression: the variable is in the exponent.",
+                    node
+                );
+                exit(1);
             }
-            ldeg
+            if ldeg != 0f32 {
+                let rdeg = sort_polynominal(r, true);
+                if rdeg < 0f32 {
+                    eprintln!("`{}` is not a polynomial expression: the variable has a negative exponent.", node);
+                    exit(1);
+                }
+                return ldeg * rdeg;
+            }
+            0f32
         }
-        Node::Mul(l, r) => sort_polynominal(l, count).max(sort_polynominal(r, count)),
         Node::Sub(l, r) => sort_polynominal(l, count).max(sort_polynominal(r, count)),
+        Node::Mul(l, r) => sort_polynominal(l, count) + sort_polynominal(r, count),
+        Node::Div(l, r) => {
+            if sort_polynominal(r, count) != 0f32 {
+                eprintln!(
+                    "`{}` is not a polynomial expression: the variable is in the denominator.",
+                    node
+                );
+                exit(1);
+            }
+            sort_polynominal(l, count)
+        }
         Node::Negate(v) => sort_polynominal(v, count),
         _ => 0f32,
     }
@@ -185,11 +208,12 @@ fn main() {
                         "Reduced\t- \x1b[33;1m{}\x1b[0m \x1b[31;1m=\x1b[0m \x1b[32;1m{}\x1b[0m",
                         lhs, rhs
                     );
-                    sort_polynominal(&mut lhs, false);
+                    let degree = sort_polynominal(&mut lhs, false);
                     println!(
                         "Sorted\t- \x1b[33;1m{}\x1b[0m \x1b[31;1m=\x1b[0m \x1b[32;1m{}\x1b[0m",
                         lhs, rhs
                     );
+                    println!("Degree: {}", degree);
                 }
                 Err(v) => {
                     eprintln!("{}", v);
