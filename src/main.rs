@@ -91,38 +91,6 @@ fn reduce(node: &mut Box<Node>) {
     }
 }
 
-fn remove_substractions(node: &mut Box<Node>) {
-    match node.as_mut() {
-        Node::Sub(l, r) => {
-            remove_substractions(l);
-            remove_substractions(r);
-            **node = Node::Add(l.clone(), Box::new(Node::Negate(r.clone())));
-        }
-        Node::Add(l, r) => {
-            remove_substractions(l);
-            remove_substractions(r);
-        }
-        Node::Mul(l, r) => {
-            remove_substractions(l);
-            remove_substractions(r);
-        }
-        Node::Div(l, r) => {
-            remove_substractions(l);
-            remove_substractions(r);
-        }
-        Node::Pow(l, r) => {
-            remove_substractions(l);
-            remove_substractions(r);
-        }
-        Node::Equal(l, r) => {
-            remove_substractions(l);
-            remove_substractions(r);
-        }
-        Node::Negate(v) => remove_substractions(v),
-        _ => (),
-    }
-}
-
 fn sort_polynominal(node: &mut Box<Node>, count: bool) -> f32 {
     match node.as_mut() {
         Node::Add(l, r) => {
@@ -162,7 +130,15 @@ fn sort_polynominal(node: &mut Box<Node>, count: bool) -> f32 {
             }
             0f32
         }
-        Node::Sub(l, r) => sort_polynominal(l, count).max(sort_polynominal(r, count)),
+        Node::Sub(l, r) => {
+            let ldeg = sort_polynominal(l, count);
+            let rdeg = sort_polynominal(r, count);
+            if rdeg > ldeg {
+                **node = Node::Add(Box::new(Node::Negate((*r).clone())), (*l).clone());
+                return rdeg;
+            }
+            ldeg
+        },
         Node::Mul(l, r) => sort_polynominal(l, count) + sort_polynominal(r, count),
         Node::Div(l, r) => {
             if sort_polynominal(r, count) != 0f32 {
@@ -195,11 +171,6 @@ fn main() {
                 Ok((mut lhs, mut rhs)) => {
                     println!(
                         "Full\t- \x1b[33;1m{}\x1b[0m \x1b[31;1m=\x1b[0m \x1b[32;1m{}\x1b[0m",
-                        lhs, rhs
-                    );
-                    remove_substractions(&mut lhs);
-                    println!(
-                        "No sub\t- \x1b[33;1m{}\x1b[0m \x1b[31;1m=\x1b[0m \x1b[32;1m{}\x1b[0m",
                         lhs, rhs
                     );
                     reduce(&mut lhs);

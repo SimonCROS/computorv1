@@ -13,15 +13,51 @@ pub enum Node {
     Number(f32),
 }
 
+impl Node {
+    pub fn should_isolate(&self, parent: &Self) -> bool {
+        match self {
+            Self::Equal(_, _) => false,
+            Self::Add(_, _) | Self::Sub(_, _) => matches!(parent, Self::Mul(_, _) | Self::Div(_, _) | Self::Negate(_)),
+            Self::Mul(_, _) | Self::Div(_, _) => matches!(parent, Self::Pow(_, _) | Self::Negate(_)),
+            Self::Pow(_, _) => matches!(parent, Self::Negate(_)),
+            Self::Negate(_) | Self::Identifier(_) | Self::Number(_) => false,
+        }
+    }
+}
+
 impl Display for Node {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Self::Equal(l, r) => write!(f, "{} = {}", l, r),
             Self::Add(l, r) => {
-                write!(f, "({} + {})", l, r)
+                let mut res = String::new();
+                if l.should_isolate(self) {
+                    res = format!("{}({})", res, l);
+                } else {
+                    res = format!("{}{}", res, l);
+                }
+                res += " + ";
+                if l.should_isolate(self) {
+                    res = format!("{}({})", res, r);
+                } else {
+                    res = format!("{}{}", res, r);
+                }
+                write!(f, "{}", res)
             },
             Self::Sub(l, r) => {
-                write!(f, "({} - {})", l, r)
+                let mut res = String::new();
+                if l.should_isolate(self) {
+                    res = format!("{}({})", res, l);
+                } else {
+                    res = format!("{}{}", res, l);
+                }
+                res += " - ";
+                if l.should_isolate(self) {
+                    res = format!("{}({})", res, r);
+                } else {
+                    res = format!("{}{}", res, r);
+                }
+                write!(f, "{}", res)
             },
             Self::Mul(l, r) => {
                 if let Node::Identifier(l) = l.as_ref() {
@@ -34,23 +70,70 @@ impl Display for Node {
                         return write!(f, "{}{}", l, r);
                     }
                 }
-                write!(f, "({} * {})", l, r)
+                let mut res = String::new();
+                if l.should_isolate(self) {
+                    res = format!("{}({})", res, l);
+                } else {
+                    res = format!("{}{}", res, l);
+                }
+                res += " * ";
+                if l.should_isolate(self) {
+                    res = format!("{}({})", res, r);
+                } else {
+                    res = format!("{}{}", res, r);
+                }
+                write!(f, "{}", res)
             },
             Self::Div(l, r) => {
-                write!(f, "({} / {})", l, r)
+                let mut res = String::new();
+                if l.should_isolate(self) {
+                    res = format!("{}({})", res, l);
+                } else {
+                    res = format!("{}{}", res, l);
+                }
+                res += " / ";
+                if l.should_isolate(self) {
+                    res = format!("{}({})", res, r);
+                } else {
+                    res = format!("{}{}", res, r);
+                }
+                write!(f, "{}", res)
             },
             Self::Pow(l, r) => {
                 if let Node::Number(r) = r.as_ref() {
-                    if *r == 2f32 {
-                        return write!(f, "{}²", l);
-                    }
-                    if *r == 3f32 {
-                        return write!(f, "{}³", l);
+                    match *r {
+                        x if x == 2f32 => return write!(f, "{}²", l),
+                        x if x == 3f32 => return write!(f, "{}³", l),
+                        x if x == 4f32 => return write!(f, "{}⁴", l),
+                        x if x == 5f32 => return write!(f, "{}⁵", l),
+                        x if x == 6f32 => return write!(f, "{}⁶", l),
+                        x if x == 7f32 => return write!(f, "{}⁷", l),
+                        x if x == 8f32 => return write!(f, "{}⁸", l),
+                        x if x == 9f32 => return write!(f, "{}⁹", l),
+                        _ => ()
                     }
                 }
-                write!(f, "({} ^ {})", l, r)
+                let mut res = String::new();
+                if l.should_isolate(self) {
+                    res = format!("{}({})", res, l);
+                } else {
+                    res = format!("{}{}", res, l);
+                }
+                res += " ^ ";
+                if l.should_isolate(self) {
+                    res = format!("{}({})", res, r);
+                } else {
+                    res = format!("{}{}", res, r);
+                }
+                write!(f, "{}", res)
             },
-            Self::Negate(v) => write!(f, "-({})", v),
+            Self::Negate(v) => {
+                if v.should_isolate(self) {
+                    write!(f, "-({})", v)
+                } else {
+                    write!(f, "-{}", v)
+                }
+            },
             Self::Identifier(v) => write!(f, "{}", v),
             Self::Number(v) => write!(f, "{}", v),
         }
