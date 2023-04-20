@@ -23,6 +23,29 @@ impl Node {
             Self::Negate(_) | Self::Identifier(_) | Self::Number(_) => false,
         }
     }
+
+    pub fn is_negative(&self) -> bool {
+        match self {
+            Self::Negate(_) => true,
+            Self::Number(v) if *v < 0f32 => true,
+            _ => false
+        }
+    }
+
+    pub fn abs(&mut self) {
+        match self {
+            Self::Negate(v) => *self = (**v).clone(),
+            Self::Number(v) => *v = v.abs(),
+            _ => ()
+        }
+    }
+
+    pub fn negate(&mut self) {
+        match self {
+            Self::Number(v) => *v = -v.abs(),
+            _ => *self = Node::Negate(Box::new(self.clone())),
+        }
+    }
 }
 
 impl Display for Node {
