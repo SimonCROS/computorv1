@@ -157,7 +157,7 @@ fn sort_polynominal(node: &mut Box<Node>, count: bool) -> f32 {
                 return rdeg;
             }
             ldeg
-        },
+        }
         Node::Mul(l, r) => sort_polynominal(l, count) + sort_polynominal(r, count),
         Node::Div(l, r) => {
             if sort_polynominal(r, count) != 0f32 {
