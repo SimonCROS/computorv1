@@ -28,6 +28,7 @@ impl Node {
         match self {
             Self::Negate(_) => true,
             Self::Number(v) if *v < 0f32 => true,
+            Self::Add(l, _) | Self::Mul(l, _) | Self::Div(l, _) if l.is_negative() => true, // Check add, and add sub ?
             _ => false
         }
     }
@@ -36,8 +37,7 @@ impl Node {
         match self {
             Self::Negate(v) => *self = (**v).clone(),
             Self::Number(v) => *v = -*v,
-            Self::Mul(l, _) => l.inverse(),
-            Self::Div(l, _) => l.inverse(),
+            Self::Add(l, _) | Self::Mul(l, _) | Self::Div(l, _) => l.inverse(),
             _ => *self = Node::Negate(Box::new(self.clone())),
         }
     }
@@ -55,7 +55,7 @@ impl Display for Node {
                     res = format!("{}{}", res, l);
                 }
                 res += " + ";
-                if l.should_isolate(self) {
+                if r.should_isolate(self) {
                     res = format!("{}({})", res, r);
                 } else {
                     res = format!("{}{}", res, r);
@@ -70,7 +70,7 @@ impl Display for Node {
                     res = format!("{}{}", res, l);
                 }
                 res += " - ";
-                if l.should_isolate(self) {
+                if r.should_isolate(self) {
                     res = format!("{}({})", res, r);
                 } else {
                     res = format!("{}{}", res, r);
@@ -100,7 +100,7 @@ impl Display for Node {
                     res = format!("{}{}", res, l);
                 }
                 res += " * ";
-                if l.should_isolate(self) {
+                if r.should_isolate(self) {
                     res = format!("{}({})", res, r);
                 } else {
                     res = format!("{}{}", res, r);
@@ -115,7 +115,7 @@ impl Display for Node {
                     res = format!("{}{}", res, l);
                 }
                 res += " / ";
-                if l.should_isolate(self) {
+                if r.should_isolate(self) {
                     res = format!("{}({})", res, r);
                 } else {
                     res = format!("{}{}", res, r);
@@ -143,7 +143,7 @@ impl Display for Node {
                     res = format!("{}{}", res, l);
                 }
                 res += " ^ ";
-                if l.should_isolate(self) {
+                if r.should_isolate(self) {
                     res = format!("{}({})", res, r);
                 } else {
                     res = format!("{}{}", res, r);

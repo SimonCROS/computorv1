@@ -21,11 +21,14 @@ fn simplify(node: &mut Box<Node>) {
             if let Node::Number(l) = l.as_mut() {
                 if let Node::Number(r) = r.as_mut() {
                     **node = Node::Number(*l + *r);
+                    return;
                 } else if *l == 0f32 {
                     **node = (**r).clone();
+                    return;
                 }
             } else if matches!(r.as_mut(), Node::Number(v) if *v == 0f32) {
                 **node = (**l).clone();
+                return;
             }
         }
         Node::Sub(l, r) => {
@@ -154,7 +157,12 @@ fn sort_polynominal(node: &mut Box<Node>, count: bool) -> f32 {
             let ldeg = sort_polynominal(l, count);
             let rdeg = sort_polynominal(r, count);
             if rdeg > ldeg {
-                **node = Node::Add(Box::new(Node::Negate((*r).clone())), (*l).clone());
+                if l.is_negative() {
+                    l.inverse();
+                    **node = Node::Sub(Box::new(Node::Negate((*r).clone())), (*l).clone());
+                } else {
+                    **node = Node::Add(Box::new(Node::Negate((*r).clone())), (*l).clone());
+                }
                 simplify(node);
                 return rdeg;
             }
@@ -174,6 +182,13 @@ fn sort_polynominal(node: &mut Box<Node>, count: bool) -> f32 {
         Node::Negate(v) => sort_polynominal(v, count),
         _ => 0f32,
     }
+}
+
+fn dbg_equation(message: &str, lhs: &Box<Node>, rhs: &Box<Node>) {
+    println!(
+        "\x1b[37;1m{}\t- {:?} = {:?}\x1b[0m",
+        message, lhs, rhs
+    );
 }
 
 fn print_equation(message: &str, lhs: &Box<Node>, rhs: &Box<Node>) {
@@ -206,6 +221,7 @@ fn main() {
                     let degree = sort_polynominal(&mut lhs, false);
                     print_equation("Sorted", &lhs, &rhs);
                     println!("Degree: {}", degree);
+                    dbg_equation("dbg", &lhs, &rhs);
                 }
                 Err(v) => {
                     eprintln!("{}", v);
