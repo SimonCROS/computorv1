@@ -102,11 +102,8 @@ fn simplify(node: &mut Box<Node>) {
         }
         Node::Negate(v) => {
             simplify(v);
-            if let Node::Number(v) = v.as_mut() {
-                **node = Node::Number(-(*v));
-            } else if let Node::Negate(v) = v.as_mut() {
-                **node = (**v).clone();
-            }
+            v.inverse();
+            **node = (**v).clone();
         }
         _ => (),
     }
