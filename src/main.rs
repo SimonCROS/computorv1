@@ -50,10 +50,12 @@ fn simplify(node: &mut Box<Node>) {
                     **node = Node::Number(*l * *r);
                     return;
                 }
-            } else if let Node::Number(r) = r.as_mut() {
-                if *r == 0f32 {
+            } else if let Node::Number(rv) = r.as_mut() {
+                if *rv == 0f32 {
                     **node = Node::Number(0f32);
                     return;
+                } else {
+                    std::mem::swap(l.as_mut(), r.as_mut());
                 }
             }
             if r.is_negative() {
@@ -174,6 +176,13 @@ fn sort_polynominal(node: &mut Box<Node>, count: bool) -> f32 {
     }
 }
 
+fn print_equation(message: &str, lhs: &Box<Node>, rhs: &Box<Node>) {
+    println!(
+        "{}\t- \x1b[33;1m{}\x1b[0m \x1b[31;1m=\x1b[0m \x1b[32;1m{}\x1b[0m",
+        message, lhs, rhs
+    );
+}
+
 fn main() {
     let args: Args = env::args();
     if args.len() != 2 {
@@ -188,21 +197,14 @@ fn main() {
             let parser = Parser::new(tokens);
             match parser.parse() {
                 Ok((mut lhs, mut rhs)) => {
-                    println!(
-                        "Full\t- \x1b[33;1m{}\x1b[0m \x1b[31;1m=\x1b[0m \x1b[32;1m{}\x1b[0m",
-                        lhs, rhs
-                    );
+                    print_equation("Full", &lhs, &rhs);
+                    *lhs = Node::Sub(lhs.clone(), rhs);
+                    rhs = Box::new(Node::Number(0f32));
+                    print_equation("Eq zero", &lhs, &rhs);
                     simplify(&mut lhs);
-                    simplify(&mut rhs);
-                    println!(
-                        "Simpl.\t- \x1b[33;1m{}\x1b[0m \x1b[31;1m=\x1b[0m \x1b[32;1m{}\x1b[0m",
-                        lhs, rhs
-                    );
+                    print_equation("Simpl.", &lhs, &rhs);
                     let degree = sort_polynominal(&mut lhs, false);
-                    println!(
-                        "Sorted\t- \x1b[33;1m{}\x1b[0m \x1b[31;1m=\x1b[0m \x1b[32;1m{}\x1b[0m",
-                        lhs, rhs
-                    );
+                    print_equation("Sorted", &lhs, &rhs);
                     println!("Degree: {}", degree);
                 }
                 Err(v) => {

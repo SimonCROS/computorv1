@@ -87,6 +87,11 @@ impl Display for Node {
                     if let Node::Identifier(r) = r.as_ref() {
                         return write!(f, "{}{}", l, r);
                     }
+                    if let Node::Pow(pl, _) = r.as_ref() {
+                        if let Node::Identifier(_) = pl.as_ref() {
+                            return write!(f, "{}{}", l, r);
+                        }
+                    }
                 }
                 let mut res = String::new();
                 if l.should_isolate(self) {
