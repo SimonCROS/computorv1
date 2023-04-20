@@ -56,19 +56,9 @@ fn simplify(node: &mut Box<Node>) {
                     return;
                 }
             }
-            if l.is_negative() {
-                if r.is_negative() {
-                    l.abs();
-                    r.abs();
-                }
-            } else {
-                if r.is_negative() {
-                    l.negate();
-                    r.abs();
-                } else {
-                    l.abs();
-                    r.abs();
-                }
+            if r.is_negative() {
+                l.inverse();
+                r.inverse();
             }
         }
         Node::Div(l, r) => {
@@ -81,14 +71,20 @@ fn simplify(node: &mut Box<Node>) {
                         exit(1);
                     }
                     **node = Node::Number(*l / *r);
+                    return;
                 } else if *l == 0f32 {
                     **node = Node::Number(0f32);
+                    return;
                 }
             } else if let Node::Number(r) = r.as_mut() {
                 if *r == 0f32 {
                     eprintln!("Cannot compute `{}`: division by zero !", node);
                     exit(1);
                 }
+            }
+            if r.is_negative() {
+                l.inverse();
+                r.inverse();
             }
         }
         Node::Pow(l, r) => {

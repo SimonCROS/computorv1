@@ -32,17 +32,12 @@ impl Node {
         }
     }
 
-    pub fn abs(&mut self) {
+    pub fn inverse(&mut self) {
         match self {
             Self::Negate(v) => *self = (**v).clone(),
-            Self::Number(v) => *v = v.abs(),
-            _ => ()
-        }
-    }
-
-    pub fn negate(&mut self) {
-        match self {
-            Self::Number(v) => *v = -v.abs(),
+            Self::Number(v) => *v = -*v,
+            Self::Mul(l, _) => l.inverse(),
+            Self::Div(l, _) => l.inverse(),
             _ => *self = Node::Negate(Box::new(self.clone())),
         }
     }
