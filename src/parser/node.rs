@@ -28,7 +28,7 @@ impl Node {
         match self {
             Self::Negate(_) => true,
             Self::Number(v) if *v < 0f32 => true,
-            Self::Add(l, _) | Self::Mul(l, _) | Self::Div(l, _) if l.is_negative() => true, // Check add, and add sub ?
+            Self::Mul(l, _) | Self::Div(l, _) if l.is_negative() => true,
             _ => false
         }
     }
@@ -37,7 +37,7 @@ impl Node {
         match self {
             Self::Negate(v) => *self = (**v).clone(),
             Self::Number(v) => *v = -*v,
-            Self::Add(l, _) | Self::Mul(l, _) | Self::Div(l, _) => l.inverse(),
+            Self::Mul(l, _) | Self::Div(l, _) => l.inverse(),
             _ => *self = Node::Negate(Box::new(self.clone())),
         }
     }
