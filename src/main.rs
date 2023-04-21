@@ -62,8 +62,8 @@ fn simplify(node: &mut Box<Node>) {
                 }
             }
             if r.is_negative() {
-                l.inverse();
-                r.inverse();
+                l.negate();
+                r.negate();
             }
         }
         Node::Div(l, r) => {
@@ -88,8 +88,8 @@ fn simplify(node: &mut Box<Node>) {
                 }
             }
             if r.is_negative() {
-                l.inverse();
-                r.inverse();
+                l.negate();
+                r.negate();
             }
         }
         Node::Pow(l, r) => {
@@ -107,7 +107,7 @@ fn simplify(node: &mut Box<Node>) {
         }
         Node::Negate(v) => {
             simplify(v);
-            v.inverse();
+            v.negate();
             **node = (**v).clone();
         }
         _ => (),
@@ -158,13 +158,19 @@ fn sort_polynominal(node: &mut Box<Node>, count: bool) -> f32 {
             let rdeg = sort_polynominal(r, count);
             if rdeg > ldeg {
                 if l.is_negative() {
-                    l.inverse();
-                    **node = Node::Sub(Box::new(Node::Negate((*r).clone())), (*l).clone());
+                    l.negate();
+                    **node = Node::Sub(r.clone(), l.clone());
                 } else {
-                    **node = Node::Add(Box::new(Node::Negate((*r).clone())), (*l).clone());
+                    r.negate();
+                    **node = Node::Add(r.clone(), l.clone());
                 }
                 simplify(node);
                 return rdeg;
+            } else {
+                if r.is_negative() {
+                    r.negate();
+                    **node = Node::Add(l.clone(), r.clone());
+                }
             }
             ldeg
         }
