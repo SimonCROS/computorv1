@@ -41,6 +41,42 @@ impl Node {
             _ => *self = Node::Negate(Box::new(self.clone())),
         }
     }
+
+    pub fn rotate(&mut self) {
+        match self {
+            Self::Equal(l, r) | Self::Add(l, r) | Self::Mul(l, r) => std::mem::swap(l.as_mut(), r.as_mut()),
+            Self::Sub(l, r) => {
+                l.negate();
+                r.negate();
+                std::mem::swap(l.as_mut(), r.as_mut())
+            },
+            _ => (),
+        }
+    }
+
+    pub fn clean(&mut self) {
+        match self {
+            Self::Add(l, r) if r.is_negative() => {
+                r.negate();
+                *self = Node::Sub(l.clone(), r.clone())
+            }
+            Self::Add(l, r) if l.is_negative() => {
+                l.negate();
+                *self = Node::Sub(r.clone(), l.clone())
+            }
+            Self::Sub(l, r) if r.is_negative() => {
+                r.negate();
+                *self = Node::Add(l.clone(), r.clone())
+            }
+            Self::Mul(l, r) | Self::Div(l, r) => {
+                if l.is_negative() && r.is_negative() {
+                    l.negate();
+                    r.negate();
+                }
+            }
+            _ => (),
+        }
+    }
 }
 
 impl Display for Node {

@@ -186,7 +186,7 @@ fn sort_polynominal(node: &mut Box<Node>, count: bool) -> f32 {
             sort_polynominal(l, count)
         }
         Node::Negate(v) => sort_polynominal(v, count),
-        _ => 0f32,
+        Node::Equal(_, _) => 0f32,
     }
 }
 
