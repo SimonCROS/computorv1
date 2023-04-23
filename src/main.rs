@@ -1,16 +1,22 @@
+use num_traits::Zero;
 use std::{
     env::{self, Args},
     process::exit,
 };
 
-use lexer::Lexer;
-use parser::{node::Node, Parser};
+use crate::parser::{node::Node, Parser};
+use crate::utils::degree;
+use crate::{
+    lexer::Lexer,
+    utils::{dbg_equation, print_equation},
+};
 
 mod lexer;
 mod parser;
+mod utils;
 
-fn simplify(node: &mut Box<Node>) {
-    match node.as_mut() {
+fn simplify(node: &mut Node) {
+    match node {
         Node::Equal(l, r) => {
             simplify(l);
             simplify(r);
@@ -18,190 +24,89 @@ fn simplify(node: &mut Box<Node>) {
         Node::Add(l, r) => {
             simplify(l);
             simplify(r);
-            if let Node::Number(l) = l.as_mut() {
-                if let Node::Number(r) = r.as_mut() {
-                    **node = Node::Number(*l + *r);
-                    return;
-                } else if *l == 0f32 {
-                    **node = (**r).clone();
-                    return;
-                }
-            } else if matches!(r.as_mut(), Node::Number(v) if *v == 0f32) {
-                **node = (**l).clone();
-                return;
+            match (l.as_mut(), r.as_mut()) {
+                (Node::Number(l), Node::Number(r)) => *node = Node::Number(*l + *r),
+                _ => (),
             }
         }
         Node::Sub(l, r) => {
             simplify(l);
             simplify(r);
-            if let Node::Number(l) = l.as_mut() {
-                if let Node::Number(r) = r.as_mut() {
-                    **node = Node::Number(*l - *r);
-                }
-            } else if matches!(r.as_mut(), Node::Number(v) if *v == 0f32) {
-                **node = (**l).clone();
+            match (l.as_mut(), r.as_mut()) {
+                (Node::Number(l), Node::Number(r)) => *node = Node::Number(*l - *r),
+                _ => (),
             }
         }
         Node::Mul(l, r) => {
             simplify(l);
             simplify(r);
-            if let Node::Number(l) = l.as_mut() {
-                if *l == 0f32 {
-                    **node = Node::Number(0f32);
-                    return;
-                } else if let Node::Number(r) = r.as_mut() {
-                    **node = Node::Number(*l * *r);
-                    return;
-                }
-            } else if let Node::Number(rv) = r.as_mut() {
-                if *rv == 0f32 {
-                    **node = Node::Number(0f32);
-                    return;
-                } else {
-                    std::mem::swap(l.as_mut(), r.as_mut());
-                }
-            }
-            if r.is_negative() {
-                l.negate();
-                r.negate();
+            match (l.as_mut(), r.as_mut()) {
+                (Node::Number(l), Node::Number(r)) => *node = Node::Number(*l * *r),
+                _ => (),
             }
         }
         Node::Div(l, r) => {
             simplify(l);
             simplify(r);
-            if let Node::Number(l) = l.as_mut() {
-                if let Node::Number(r) = r.as_mut() {
-                    if *r == 0f32 {
-                        eprintln!("Cannot compute `{}`: division by zero !", node);
-                        exit(1);
-                    }
-                    **node = Node::Number(*l / *r);
-                    return;
-                } else if *l == 0f32 {
-                    **node = Node::Number(0f32);
-                    return;
-                }
-            } else if let Node::Number(r) = r.as_mut() {
-                if *r == 0f32 {
+            match (l.as_mut(), r.as_mut()) {
+                (_, Node::Number(r)) if r.is_zero() => {
                     eprintln!("Cannot compute `{}`: division by zero !", node);
                     exit(1);
                 }
-            }
-            if r.is_negative() {
-                l.negate();
-                r.negate();
+                (Node::Number(l), Node::Number(r)) => *node = Node::Number(*l / *r),
+                _ => (),
             }
         }
         Node::Pow(l, r) => {
             simplify(l);
             simplify(r);
-            if let Node::Number(r) = r.as_mut() {
-                if let Node::Number(l) = l.as_mut() {
-                    **node = Node::Number((*l).powf(*r));
-                } else if *r == 0f32 {
-                    **node = Node::Number(1f32);
-                } else if *r == 1f32 {
-                    **node = (**l).clone();
-                }
+            match (l.as_mut(), r.as_mut()) {
+                (Node::Number(l), Node::Number(r)) => *node = Node::Number((*l).powf(*r)),
+                _ => (),
             }
         }
         Node::Negate(v) => {
             simplify(v);
             v.negate();
-            **node = (**v).clone();
+            *node = (**v).clone();
         }
         _ => (),
     }
 }
 
-fn sort_polynominal(node: &mut Box<Node>, count: bool) -> f32 {
-    match node.as_mut() {
-        Node::Add(l, r) => {
-            let ldeg = sort_polynominal(l, count);
-            let rdeg = sort_polynominal(r, count);
-            if rdeg > ldeg {
-                std::mem::swap(l, r);
-                return rdeg;
-            }
-            ldeg
-        }
-        Node::Number(v) => {
-            if count {
-                *v
-            } else {
-                0f32
+fn sort_polynominal(node: &mut Node) {
+    match node {
+        Node::Add(l, r) | Node::Sub(l, r) => {
+            sort_polynominal(l);
+            sort_polynominal(r);
+
+            if degree(r) > degree(l) {
+                node.rotate();
             }
         }
-        Node::Identifier(_) => 1f32,
-        Node::Pow(l, r) => {
-            let ldeg = sort_polynominal(l, count);
-            let rdeg = sort_polynominal(r, count);
-            if rdeg != 0f32 {
-                eprintln!(
-                    "`{}` is not a valid polynomial expression: the variable is in the exponent.",
-                    node
-                );
-                exit(1);
-            }
-            if ldeg != 0f32 {
-                let rdeg = sort_polynominal(r, true);
-                if rdeg < 0f32 {
-                    eprintln!("`{}` is not a polynomial expression: the variable has a negative exponent.", node);
-                    exit(1);
-                }
-                return ldeg * rdeg;
-            }
-            0f32
+        Node::Pow(l, r) | Node::Mul(l, r) | Node::Div(l, r) => {
+            sort_polynominal(l);
+            sort_polynominal(r);
         }
-        Node::Sub(l, r) => {
-            let ldeg = sort_polynominal(l, count);
-            let rdeg = sort_polynominal(r, count);
-            if rdeg > ldeg {
-                if l.is_negative() {
-                    l.negate();
-                    **node = Node::Sub(r.clone(), l.clone());
-                } else {
-                    r.negate();
-                    **node = Node::Add(r.clone(), l.clone());
-                }
-                simplify(node);
-                return rdeg;
-            } else {
-                if r.is_negative() {
-                    r.negate();
-                    **node = Node::Add(l.clone(), r.clone());
-                }
-            }
-            ldeg
-        }
-        Node::Mul(l, r) => sort_polynominal(l, count) + sort_polynominal(r, count),
-        Node::Div(l, r) => {
-            if sort_polynominal(r, count) != 0f32 {
-                eprintln!(
-                    "`{}` is not a polynomial expression: the variable is in the denominator.",
-                    node
-                );
-                exit(1);
-            }
-            sort_polynominal(l, count)
-        }
-        Node::Negate(v) => sort_polynominal(v, count),
-        Node::Equal(_, _) => 0f32,
+        // eprintln!(
+        //     "`{}` is not a valid polynomial expression: the variable is in the exponent.",
+        //     node
+        // );
+        // exit(1);
+
+        // if rdeg < 0f32 {
+        //     eprintln!("`{}` is not a polynomial expression: the variable has a negative exponent.", node);
+        //     exit(1);
+        // }
+
+        // eprintln!(
+        //     "`{}` is not a polynomial expression: the variable is in the denominator.",
+        //     node
+        // );
+        // exit(1);
+        Node::Negate(v) => sort_polynominal(v),
+        _ => (),
     }
-}
-
-fn dbg_equation(message: &str, lhs: &Box<Node>, rhs: &Box<Node>) {
-    println!(
-        "\x1b[37;1m{}\t- {:?} = {:?}\x1b[0m",
-        message, lhs, rhs
-    );
-}
-
-fn print_equation(message: &str, lhs: &Box<Node>, rhs: &Box<Node>) {
-    println!(
-        "{}\t- \x1b[33;1m{}\x1b[0m \x1b[31;1m=\x1b[0m \x1b[32;1m{}\x1b[0m",
-        message, lhs, rhs
-    );
 }
 
 fn main() {
@@ -222,11 +127,15 @@ fn main() {
                     *lhs = Node::Sub(lhs.clone(), rhs);
                     rhs = Box::new(Node::Number(0f32));
                     print_equation("Eq zero", &lhs, &rhs);
+
+                    lhs.clean();
                     simplify(&mut lhs);
-                    print_equation("Simpl.", &lhs, &rhs);
-                    let degree = sort_polynominal(&mut lhs, false);
+                    sort_polynominal(&mut lhs);
+                    lhs.clean();
+                    simplify(&mut lhs);
+
                     print_equation("Sorted", &lhs, &rhs);
-                    println!("Degree: {}", degree);
+                    println!("Degree: {}", degree(&lhs));
                     dbg_equation("dbg", &lhs, &rhs);
                 }
                 Err(v) => {
