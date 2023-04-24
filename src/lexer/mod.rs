@@ -1,7 +1,5 @@
-use std::{iter::Peekable, str::Chars};
-
 use self::token::Token;
-
+use std::{iter::Peekable, str::Chars};
 pub mod token;
 
 pub struct Lexer<'a> {

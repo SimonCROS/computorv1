@@ -1,97 +1,21 @@
-use num_traits::Zero;
-use std::{
-    env::{self, Args},
-    process::exit,
-};
-
-use crate::parser::{node::Node, Parser};
 use crate::utils::degree;
 use crate::{
     lexer::Lexer,
     utils::{dbg_equation, print_equation},
 };
+use crate::{
+    parser::{node::Node, Parser},
+    preprocess::{simplify, sort_polynominal},
+};
+use std::{
+    env::{self, Args},
+    process::exit,
+};
 
 mod lexer;
 mod parser;
+mod preprocess;
 mod utils;
-
-fn simplify(node: &mut Node) {
-    match node {
-        Node::Equal(l, r) => {
-            simplify(l);
-            simplify(r);
-        }
-        Node::Add(l, r) => {
-            simplify(l);
-            simplify(r);
-            match (l.as_mut(), r.as_mut()) {
-                (Node::Number(l), Node::Number(r)) => *node = Node::Number(*l + *r),
-                _ => (),
-            }
-        }
-        Node::Sub(l, r) => {
-            simplify(l);
-            simplify(r);
-            match (l.as_mut(), r.as_mut()) {
-                (Node::Number(l), Node::Number(r)) => *node = Node::Number(*l - *r),
-                _ => (),
-            }
-        }
-        Node::Mul(l, r) => {
-            simplify(l);
-            simplify(r);
-            match (l.as_mut(), r.as_mut()) {
-                (Node::Number(l), Node::Number(r)) => *node = Node::Number(*l * *r),
-                _ => (),
-            }
-        }
-        Node::Div(l, r) => {
-            simplify(l);
-            simplify(r);
-            match (l.as_mut(), r.as_mut()) {
-                (_, Node::Number(r)) if r.is_zero() => {
-                    eprintln!("Cannot compute `{}`: division by zero !", node);
-                    exit(1);
-                }
-                (Node::Number(l), Node::Number(r)) => *node = Node::Number(*l / *r),
-                _ => (),
-            }
-        }
-        Node::Pow(l, r) => {
-            simplify(l);
-            simplify(r);
-            match (l.as_mut(), r.as_mut()) {
-                (Node::Number(l), Node::Number(r)) => *node = Node::Number((*l).powf(*r)),
-                _ => (),
-            }
-        }
-        Node::Negate(v) => {
-            simplify(v);
-            v.negate();
-            *node = (**v).clone();
-        }
-        _ => (),
-    }
-}
-
-fn sort_polynominal(node: &mut Node) {
-    match node {
-        Node::Add(l, r) | Node::Sub(l, r) => {
-            sort_polynominal(l);
-            sort_polynominal(r);
-
-            if degree(r) > degree(l) {
-                node.rotate();
-            }
-        }
-        Node::Equal(l, r) | Node::Pow(l, r) | Node::Mul(l, r) | Node::Div(l, r) => {
-            sort_polynominal(l);
-            sort_polynominal(r);
-        }
-        Node::Negate(v) => sort_polynominal(v),
-        _ => (),
-    }
-}
 
 fn main() {
     let args: Args = env::args();

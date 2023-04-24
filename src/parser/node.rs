@@ -1,8 +1,5 @@
-use std::{
-    fmt::{Debug, Display},
-};
-
 use num_traits::{Signed, Zero};
+use std::fmt::{Debug, Display};
 
 #[derive(Clone)]
 pub enum Node {
@@ -115,7 +112,9 @@ impl Node {
                     r.negate();
                 }
             }
-            Self::Pow(l, r) if matches!(r.as_ref(), Node::Number(n) if *n == 1f32) => *self = l.as_ref().clone(),
+            Self::Pow(l, r) if matches!(r.as_ref(), Node::Number(n) if *n == 1f32) => {
+                *self = l.as_ref().clone()
+            }
             Self::Pow(_, r) if r.is_zero() => *self = Node::Number(1f32),
             _ => (),
         }

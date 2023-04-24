@@ -1,8 +1,6 @@
-use std::process::exit;
-
-use num_traits::{Signed, Zero};
-
 use crate::parser::node::Node;
+use num_traits::{Signed, Zero};
+use std::process::exit;
 
 fn _degree(node: &Node, count: bool) -> f32 {
     match node {
@@ -13,7 +11,7 @@ fn _degree(node: &Node, count: bool) -> f32 {
                 node
             );
             exit(1)
-        },
+        }
         Node::Identifier(_) => 1f32,
         Node::Pow(l, r) => {
             let ld = _degree(l, count);
@@ -38,7 +36,7 @@ fn _degree(node: &Node, count: bool) -> f32 {
                 exit(1);
             }
             _degree(l, count)
-        },
+        }
         Node::Negate(v) => _degree(v, count),
         _ => 0f32,
     }
