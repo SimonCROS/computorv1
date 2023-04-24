@@ -84,26 +84,10 @@ fn sort_polynominal(node: &mut Node) {
                 node.rotate();
             }
         }
-        Node::Pow(l, r) | Node::Mul(l, r) | Node::Div(l, r) => {
+        Node::Equal(l, r) | Node::Pow(l, r) | Node::Mul(l, r) | Node::Div(l, r) => {
             sort_polynominal(l);
             sort_polynominal(r);
         }
-        // eprintln!(
-        //     "`{}` is not a valid polynomial expression: the variable is in the exponent.",
-        //     node
-        // );
-        // exit(1);
-
-        // if rdeg < 0f32 {
-        //     eprintln!("`{}` is not a polynomial expression: the variable has a negative exponent.", node);
-        //     exit(1);
-        // }
-
-        // eprintln!(
-        //     "`{}` is not a polynomial expression: the variable is in the denominator.",
-        //     node
-        // );
-        // exit(1);
         Node::Negate(v) => sort_polynominal(v),
         _ => (),
     }
