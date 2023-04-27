@@ -53,6 +53,14 @@ impl Node {
             Self::Negate(v) => *self = (**v).clone(),
             Self::Number(v) => *v = -*v,
             Self::Mul(l, _) | Self::Div(l, _) => l.negate(),
+            Self::Add(l, r) => {
+                l.negate();
+                *self = Node::Sub(l.clone(), r.clone());
+            },
+            Self::Sub(l, r) => {
+                l.negate();
+                *self = Node::Add(l.clone(), r.clone());
+            },
             _ => *self = Node::Negate(Box::new(self.clone())),
         }
     }
