@@ -2,6 +2,33 @@ use crate::{parser::node::Node, utils::degree};
 use num_traits::Zero;
 use std::process::exit;
 
+fn find_cumulable_number(node: &mut Node) -> Option<&mut Node> {
+    match node {
+        Node::Add(l, r) => find_cumulable_number(l).or_else(|| find_cumulable_number(r)),
+        Node::Number(_) => Some(node),
+        _ => None
+    }
+}
+
+fn peek_cumulable_number(node: &mut Node) -> Option<Box<Node>> {
+    match node {
+        Node::Add(l, r) => {
+            if let Node::Number(v) = l.as_ref() {
+                let result = l.clone();
+                *node = (**r).clone();
+                Some(result)
+            } else if let Node::Number(v) = r.as_ref() {
+                let result = r.clone();
+                *node = (**l).clone();
+                Some(result)
+            } else {
+                peek_cumulable_number(l).or_else(|| peek_cumulable_number(r))
+            }
+        }
+        _ => None
+    }
+}
+
 pub fn simplify(node: &mut Node) {
     match node {
         Node::Equal(l, r) => {
@@ -11,6 +38,13 @@ pub fn simplify(node: &mut Node) {
         Node::Add(l, r) => {
             simplify(l);
             simplify(r);
+            // if let Some(Node::Number(vl)) = find_cumulable_number(l) {
+            //     if let Some(vn) = find_cumulable_number(r) {
+            //         if let Node::Number(vr) = vn.as_ref() {
+            //             *vl += *vr;
+            //         }
+            //     }
+            // }
             match (l.as_mut(), r.as_mut()) {
                 (Node::Number(l), Node::Number(r)) => *node = Node::Number(*l + *r),
                 _ => (),

@@ -1,7 +1,7 @@
 use num_traits::{Signed, Zero};
 use std::fmt::{Debug, Display};
 
-#[derive(Clone)]
+#[derive(Clone, PartialEq)]
 pub enum Node {
     Equal(Box<Node>, Box<Node>),
     Add(Box<Node>, Box<Node>),
@@ -101,19 +101,23 @@ impl Node {
 
         match self {
             Self::Add(l, r) | Self::Add(r, l) if r.is_zero() => *self = l.as_ref().clone(),
-            Self::Add(l, r) | Self::Add(r, l) if r.is_negative() => {
-                r.negate();
-                *self = Node::Sub(l.clone(), r.clone())
-            }
-            Self::Sub(l, r) if r.is_negative() => {
-                r.negate();
-                *self = Node::Add(l.clone(), r.clone())
-            }
+            // Self::Add(l, r) | Self::Add(r, l) if r.is_negative() => {
+            //     r.negate();
+            //     *self = Node::Sub(l.clone(), r.clone())
+            // }
             Self::Sub(l, r) if r.is_zero() => *self = l.as_ref().clone(),
             Self::Sub(l, r) if l.is_zero() => {
                 r.negate();
                 *self = r.as_ref().clone();
             }
+            Self::Sub(l, r) => {
+                r.negate();
+                *self = Node::Add(l.clone(), r.clone())
+            }
+            // Self::Sub(l, r) if r.is_negative() => {
+            //     r.negate();
+            //     *self = Node::Add(l.clone(), r.clone())
+            // }
             Self::Mul(l, r) | Self::Div(l, r) => {
                 if l.is_negative() && r.is_negative() {
                     l.negate();

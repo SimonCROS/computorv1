@@ -34,17 +34,14 @@ fn main() {
                     print_equation("Full", &lhs, &rhs);
                     *lhs = Node::Sub(lhs.clone(), rhs);
                     rhs = Box::new(Node::Number(0f32));
-                    print_equation("Eq zero", &lhs, &rhs);
-
+                    
                     lhs.clean();
                     simplify(&mut lhs);
                     sort_polynominal(&mut lhs);
-                    lhs.clean();
-                    simplify(&mut lhs);
 
                     print_equation("Sorted", &lhs, &rhs);
-                    println!("Degree: {}", degree(&lhs));
                     dbg_equation("dbg", &lhs, &rhs);
+                    println!("Degree: {}", degree(&lhs));
                 }
                 Err(v) => {
                     eprintln!("{}", v);
