@@ -1,17 +1,33 @@
 use num_traits::{Signed, Zero};
-use std::fmt::{Debug, Display};
+use std::{fmt::{Debug, Display}, rc::{Weak, Rc}, cell::RefCell};
 
 #[derive(Clone, PartialEq)]
-pub enum Node {
-    Equal(Box<Node>, Box<Node>),
-    Add(Box<Node>, Box<Node>),
-    Sub(Box<Node>, Box<Node>),
-    Div(Box<Node>, Box<Node>),
-    Mul(Box<Node>, Box<Node>),
-    Pow(Box<Node>, Box<Node>),
-    Negate(Box<Node>),
-    Identifier(String),
-    Number(f32),
+pub struct Node {
+    // parent: Option<Weak<RefCell<Node>>>,
+    pub left: Rc<RefCell<Node>>,
+    pub right: Rc<RefCell<Node>>,
+    pub identifier: String,
+    pub number: f32,
+    node_type: NodeType,
+}
+
+impl Node {
+    pub fn get_type(&self) -> NodeType {
+        self.node_type
+    }
+}
+
+#[derive(Clone, PartialEq)]
+pub enum NodeType {
+    Equal,
+    Add,
+    Sub,
+    Div,
+    Mul,
+    Pow,
+    Negate,
+    Identifier,
+    Number,
 }
 
 impl Node {
