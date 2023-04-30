@@ -1,13 +1,16 @@
 use num_traits::{Signed, Zero};
-use std::{fmt::{Debug, Display}, rc::{Weak, Rc}, cell::RefCell};
+use std::{
+    cell::RefCell,
+    fmt::{Debug, Display},
+    rc::{Rc},
+};
 
 #[derive(Clone, PartialEq)]
 pub struct Node {
     // parent: Option<Weak<RefCell<Node>>>,
     pub left: Rc<RefCell<Node>>,
     pub right: Rc<RefCell<Node>>,
-    pub identifier: String,
-    pub number: f32,
+    pub value: Literal,
     node_type: NodeType,
 }
 
@@ -15,6 +18,13 @@ impl Node {
     pub fn get_type(&self) -> NodeType {
         self.node_type
     }
+}
+
+#[derive(Clone, PartialEq)]
+pub enum Literal {
+    Identifier(String),
+    Number(f32),
+    None,
 }
 
 #[derive(Clone, PartialEq)]
@@ -26,125 +36,110 @@ pub enum NodeType {
     Mul,
     Pow,
     Negate,
-    Identifier,
-    Number,
+    Literal,
 }
 
 impl Node {
-    fn should_isolate(&self, parent: &Self) -> bool {
-        match self {
-            Self::Equal(_, _) => false,
-            Self::Add(_, _) | Self::Sub(_, _) => {
-                matches!(parent, Self::Mul(_, _) | Self::Div(_, _) | Self::Negate(_))
-            }
-            Self::Mul(_, _) | Self::Div(_, _) => {
-                matches!(parent, Self::Pow(_, _) | Self::Negate(_))
-            }
-            Self::Pow(_, _) => matches!(parent, Self::Negate(_)),
-            Self::Negate(_) | Self::Identifier(_) | Self::Number(_) => false,
-        }
+    pub fn new_negate(node: Node) -> Node {
+        Node { left: Rc::new(RefCell::new(node)), right: (), value: Literal::None, node_type: NodeType::Negate }
+    }
+
+    pub fn new_literal(value: Literal) -> Node {
+        Node { left: (), right: (), value: value, node_type: NodeType::Literal }
+    }
+
+    pub fn new_binary(left: Node, right: Node, node_type: NodeType) -> Node {
+        Node { left: Rc::new(RefCell::new(left)), right: Rc::new(RefCell::new(right)), value: Literal::None, node_type: node_type }
     }
 
     pub fn is_zero(&self) -> bool {
-        match self {
-            Self::Number(v) => v.is_zero(),
-            Self::Pow(l, r) if l.is_zero() && !r.is_zero() => true,
-            Self::Mul(v, _) | Self::Mul(_, v) | Self::Div(v, _) if v.is_zero() => true,
-            Self::Negate(v) => v.is_zero(),
+        match self.get_type() {
+            NodeType::Literal if matches!(self.value, Literal::Number(n) if n.is_zero()) => true,
+            NodeType::Pow if self.left.borrow().is_zero() && !self.right.borrow().is_zero() => true,
+            NodeType::Mul if self.left.borrow().is_zero() || self.right.borrow().is_zero() => true,
+            NodeType::Div if self.left.borrow().is_zero() => true,
+            NodeType::Negate => self.right.borrow().is_zero(),
             _ => false,
         }
     }
 
     pub fn is_negative(&self) -> bool {
-        match self {
-            Self::Negate(_) => true,
-            Self::Number(v) if v.is_negative() => true,
-            Self::Mul(l, _) | Self::Div(l, _) if l.is_negative() => true,
+        match self.get_type() {
+            NodeType::Negate => true,
+            NodeType::Literal if matches!(self.value, Literal::Number(n) if n.is_negative()) => true,
+            NodeType::Mul | NodeType::Div if self.left.borrow().is_negative() => true,
             _ => false,
         }
     }
 
     pub fn negate(&mut self) {
-        match self {
-            Self::Negate(v) => *self = (**v).clone(),
-            Self::Number(v) => *v = -*v,
-            Self::Mul(l, _) | Self::Div(l, _) => l.negate(),
-            Self::Add(l, r) => {
-                l.negate();
-                *self = Node::Sub(l.clone(), r.clone());
+        match self.get_type() {
+            NodeType::Negate => *self = self.left.borrow().clone(),
+            NodeType::Literal if matches!(self.value, Literal::Number(n)) => self.value.,
+            NodeType::Mul | NodeType::Div => self.left.get_mut().negate(),
+            _ => {
+                *self = Self::new_negate(self.clone());
             },
-            Self::Sub(l, r) => {
-                l.negate();
-                *self = Node::Add(l.clone(), r.clone());
-            },
-            _ => *self = Node::Negate(Box::new(self.clone())),
         }
     }
 
     pub fn rotate(&mut self) {
-        match self {
-            Self::Equal(l, r) | Self::Add(l, r) | Self::Mul(l, r) => {
-                std::mem::swap(l.as_mut(), r.as_mut())
+        std::mem::swap(self.left.get_mut(), self.right.get_mut())
+    }
+
+    pub fn clean(&mut self) {
+        self.left.borrow().clean();
+        self.right.borrow().clean();
+
+        if self.is_zero() {
+            self.node_type = NodeType::Number;
+            self.number = 0f32;
+            return;
+        }
+
+        match self.get_type() {
+            NodeType::Add if self.left.borrow().is_zero() => *self = self.right.borrow().clone(),
+            NodeType::Add if self.right.borrow().is_zero() => *self = self.left.borrow().clone(),
+            NodeType::Sub if self.right.borrow().is_zero() => *self = self.left.borrow().clone(),
+            NodeType::Sub if self.left.borrow().is_zero() => {
+                self.right.get_mut().negate();
+                *self = self.right.borrow().clone();
             }
-            Self::Sub(l, r) => {
-                l.negate();
-                r.negate();
-                std::mem::swap(l.as_mut(), r.as_mut())
+            NodeType::Sub => {
+                self.right.get_mut().negate();
+                self.node_type = NodeType::Add;
+                self.rotate();
+            }
+            NodeType::Mul | NodeType::Div
+                if self.left.borrow().is_negative() && self.right.borrow().is_negative() =>
+            {
+                self.left.borrow().negate();
+                self.right.borrow().negate();
+            }
+            NodeType::Pow if self.right.borrow().get_type() == NodeType::Number && self.right.borrow().number == 1f32 => {
+                *self = self.left.borrow().clone()
+            }
+            NodeType::Pow if self.right.borrow().is_zero() => {
+                self.node_type = NodeType::Number;
+                self.number = 0f32;
             }
             _ => (),
         }
     }
+}
 
-    pub fn clean(&mut self) {
+impl NodeType {
+    fn should_isolate(&self, parent: &Self) -> bool {
         match self {
-            Self::Equal(l, r)
-            | Self::Add(l, r)
-            | Self::Sub(l, r)
-            | Self::Mul(l, r)
-            | Self::Div(l, r)
-            | Self::Pow(l, r) => {
-                l.clean();
-                r.clean();
+            Self::Equal => false,
+            Self::Add | Self::Sub => {
+                matches!(parent, Self::Mul | Self::Div | Self::Negate)
             }
-            Self::Negate(v) => v.clean(),
-            _ => (),
-        }
-
-        if self.is_zero() {
-            *self = Node::Number(0f32);
-            return;
-        }
-
-        match self {
-            Self::Add(l, r) | Self::Add(r, l) if r.is_zero() => *self = l.as_ref().clone(),
-            // Self::Add(l, r) | Self::Add(r, l) if r.is_negative() => {
-            //     r.negate();
-            //     *self = Node::Sub(l.clone(), r.clone())
-            // }
-            Self::Sub(l, r) if r.is_zero() => *self = l.as_ref().clone(),
-            Self::Sub(l, r) if l.is_zero() => {
-                r.negate();
-                *self = r.as_ref().clone();
+            Self::Mul | Self::Div => {
+                matches!(parent, Self::Pow | Self::Negate)
             }
-            Self::Sub(l, r) => {
-                r.negate();
-                *self = Node::Add(l.clone(), r.clone())
-            }
-            // Self::Sub(l, r) if r.is_negative() => {
-            //     r.negate();
-            //     *self = Node::Add(l.clone(), r.clone())
-            // }
-            Self::Mul(l, r) | Self::Div(l, r) => {
-                if l.is_negative() && r.is_negative() {
-                    l.negate();
-                    r.negate();
-                }
-            }
-            Self::Pow(l, r) if matches!(r.as_ref(), Node::Number(n) if *n == 1f32) => {
-                *self = l.as_ref().clone()
-            }
-            Self::Pow(_, r) if r.is_zero() => *self = Node::Number(1f32),
-            _ => (),
+            Self::Pow => matches!(parent, Self::Negate),
+            Self::Negate | Self::Identifier | Self::Number => false,
         }
     }
 }

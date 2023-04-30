@@ -87,6 +87,8 @@ pub fn sort_polynominal(node: &mut Node) {
             sort_polynominal(r);
 
             if degree(r) > degree(l) {
+                l.negate();
+                r.negate();
                 node.rotate();
             }
         }
