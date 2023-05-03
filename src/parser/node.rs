@@ -11,13 +11,7 @@ pub struct Node {
     pub left: Rc<RefCell<Node>>,
     pub right: Rc<RefCell<Node>>,
     pub value: Literal,
-    node_type: NodeType,
-}
-
-impl Node {
-    pub fn get_type(&self) -> NodeType {
-        self.node_type
-    }
+    pub node_type: NodeType,
 }
 
 #[derive(Clone, PartialEq)]

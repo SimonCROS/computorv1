@@ -1,5 +1,5 @@
 use crate::{
-    parser::node::{Node, NodeType},
+    parser::node::{Literal, Node, NodeType},
     utils::degree,
 };
 use std::{cell::RefCell, process::exit, rc::Rc};
@@ -8,34 +8,31 @@ pub fn simplify(node: Rc<RefCell<Node>>) {
     simplify(node.borrow_mut().left);
     simplify(node.borrow_mut().right);
 
-    match node.borrow().get_type() {
+    match node.borrow().node_type {
         NodeType::Add => match (
-            node.borrow().left.borrow().get_type(),
-            node.borrow().right.borrow().get_type(),
+            node.borrow().left.borrow().value,
+            node.borrow().right.borrow().value,
         ) {
-            (NodeType::Number, NodeType::Number) => {
-                node.borrow_mut().number =
-                    node.borrow().left.borrow().number + node.borrow().right.borrow().number
+            (Literal::Number(l), Literal::Number(r)) => {
+                node.borrow_mut().value = Literal::Number(l + r)
             }
             _ => (),
         },
         NodeType::Sub => match (
-            node.borrow().left.borrow().get_type(),
-            node.borrow().right.borrow().get_type(),
+            node.borrow().left.borrow().value,
+            node.borrow().right.borrow().value,
         ) {
-            (NodeType::Number, NodeType::Number) => {
-                node.borrow_mut().number =
-                    node.borrow().left.borrow().number - node.borrow().right.borrow().number
+            (Literal::Number(l), Literal::Number(r)) => {
+                node.borrow_mut().value = Literal::Number(l - r)
             }
             _ => (),
         },
         NodeType::Mul => match (
-            node.borrow().left.borrow().get_type(),
-            node.borrow().right.borrow().get_type(),
+            node.borrow().left.borrow().value,
+            node.borrow().right.borrow().value,
         ) {
-            (NodeType::Number, NodeType::Number) => {
-                node.borrow_mut().number =
-                    node.borrow().left.borrow().number * node.borrow().right.borrow().number
+            (Literal::Number(l), Literal::Number(r)) => {
+                node.borrow_mut().value = Literal::Number(l * r)
             }
             _ => (),
         },
@@ -48,27 +45,21 @@ pub fn simplify(node: Rc<RefCell<Node>>) {
                 exit(1);
             }
             match (
-                node.borrow().left.borrow().get_type(),
-                node.borrow().right.borrow().get_type(),
+                node.borrow().left.borrow().value,
+                node.borrow().right.borrow().value,
             ) {
-                (NodeType::Number, NodeType::Number) => {
-                    node.borrow_mut().number =
-                        node.borrow().left.borrow().number / node.borrow().right.borrow().number
+                (Literal::Number(l), Literal::Number(r)) => {
+                    node.borrow_mut().value = Literal::Number(l / r)
                 }
                 _ => (),
             }
         }
         NodeType::Pow => match (
-            node.borrow().left.borrow().get_type(),
-            node.borrow().right.borrow().get_type(),
+            node.borrow().left.borrow().value,
+            node.borrow().right.borrow().value,
         ) {
-            (NodeType::Number, NodeType::Number) => {
-                node.borrow_mut().number = node
-                    .borrow()
-                    .left
-                    .borrow()
-                    .number
-                    .powf(node.borrow().right.borrow().number)
+            (Literal::Number(l), Literal::Number(r)) => {
+                node.borrow_mut().value = Literal::Number(l.powf(r));
             }
             _ => (),
         },
@@ -80,16 +71,16 @@ pub fn simplify(node: Rc<RefCell<Node>>) {
     }
 }
 
-pub fn sort_polynominal(node: &mut Node) {
-    match node {
-        Node::Add(l, r) | Node::Sub(l, r) => {
-            sort_polynominal(l);
-            sort_polynominal(r);
+pub fn sort_polynominal(node: Rc<RefCell<Node>>) {
+    match node.borrow().node_type {
+        NodeType::Add | NodeType::Sub => {
+            sort_polynominal(node.borrow().left);
+            sort_polynominal(node.borrow().right);
 
-            if degree(r) > degree(l) {
-                l.negate();
-                r.negate();
-                node.rotate();
+            if degree(node.borrow().right.borrow()) > degree(node.borrow().left.borrow()) {
+                node.borrow().left.borrow().negate();
+                node.borrow().right.borrow().negate();
+                node.borrow().rotate();
             }
         }
         Node::Equal(l, r) | Node::Pow(l, r) | Node::Mul(l, r) | Node::Div(l, r) => {
