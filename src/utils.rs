@@ -1,21 +1,24 @@
-use crate::parser::node::Node;
+use crate::parser::node::{Node, NodeType, Literal};
 use num_traits::{Signed, Zero};
-use std::process::exit;
+use std::{process::exit, cell::Ref};
 
-fn _degree(node: &Node, count: bool) -> f32 {
-    match node {
-        Node::Number(v) if count => *v,
-        Node::Identifier(_) if count => {
-            eprintln!(
-                "`{}` is not a valid polynomial expression: the variable is in the exponent.",
-                node
-            );
-            exit(1)
-        }
-        Node::Identifier(_) => 1f32,
-        Node::Pow(l, r) => {
-            let ld = _degree(l, count);
-            let rd = _degree(r, true);
+fn _degree(node: Ref<Node>, count: bool) -> f32 {
+    match node.node_type {
+        NodeType::Literal => match node.value {
+            Literal::Number(v) if count => v,
+            Literal::Identifier(_) if count => {
+                eprintln!(
+                    "`{}` is not a valid polynomial expression: the variable is in the exponent.",
+                    node
+                );
+                exit(1)
+            }
+            Literal::Identifier(_) => 1f32,
+            Literal::Number(_) | Literal::None => 0f32,
+        },
+        NodeType::Pow => {
+            let ld = _degree(node.left.borrow(), count);
+            let rd = _degree(node.right.borrow(), true);
             if !ld.is_zero() && rd.is_negative() {
                 eprintln!(
                     "`{}` is not a polynomial expression: the variable has a negative exponent.",
@@ -25,24 +28,24 @@ fn _degree(node: &Node, count: bool) -> f32 {
             }
             ld * rd
         }
-        Node::Add(l, r) | Node::Sub(l, r) => _degree(l, count).max(_degree(r, count)),
-        Node::Mul(l, r) => _degree(l, count) + _degree(r, count),
-        Node::Div(l, r) => {
-            if !_degree(r, count).is_zero() {
+        NodeType::Add | NodeType::Sub => _degree(node.left.borrow(), count).max(_degree(node.right.borrow(), count)),
+        NodeType::Mul => _degree(node.left.borrow(), count) + _degree(node.right.borrow(), count),
+        NodeType::Div => {
+            if !_degree(node.right.borrow(), count).is_zero() {
                 eprintln!(
                     "`{}` is not a polynomial expression: the variable is in the denominator.",
                     node
                 );
                 exit(1);
             }
-            _degree(l, count)
+            _degree(node.left.borrow(), count)
         }
-        Node::Negate(v) => _degree(v, count),
+        NodeType::Negate => _degree(node.left.borrow(), count),
         _ => 0f32,
     }
 }
 
-pub fn degree(node: &Node) -> f32 {
+pub fn degree(node: Ref<Node>) -> f32 {
     _degree(node, false)
 }
 

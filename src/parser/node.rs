@@ -47,7 +47,7 @@ impl Node {
     }
 
     pub fn is_zero(&self) -> bool {
-        match self.get_type() {
+        match self.node_type {
             NodeType::Literal if matches!(self.value, Literal::Number(n) if n.is_zero()) => true,
             NodeType::Pow if self.left.borrow().is_zero() && !self.right.borrow().is_zero() => true,
             NodeType::Mul if self.left.borrow().is_zero() || self.right.borrow().is_zero() => true,
@@ -58,7 +58,7 @@ impl Node {
     }
 
     pub fn is_negative(&self) -> bool {
-        match self.get_type() {
+        match self.node_type {
             NodeType::Negate => true,
             NodeType::Literal if matches!(self.value, Literal::Number(n) if n.is_negative()) => true,
             NodeType::Mul | NodeType::Div if self.left.borrow().is_negative() => true,
@@ -67,9 +67,9 @@ impl Node {
     }
 
     pub fn negate(&mut self) {
-        match self.get_type() {
+        match self.node_type {
             NodeType::Negate => *self = self.left.borrow().clone(),
-            NodeType::Literal if matches!(self.value, Literal::Number(n)) => self.value.,
+            NodeType::Literal if matches!(self.value, Literal::Number(n)) => self.value = Literal::Number(-n),
             NodeType::Mul | NodeType::Div => self.left.get_mut().negate(),
             _ => {
                 *self = Self::new_negate(self.clone());
@@ -86,12 +86,12 @@ impl Node {
         self.right.borrow().clean();
 
         if self.is_zero() {
-            self.node_type = NodeType::Number;
-            self.number = 0f32;
+            self.node_type = NodeType::Literal;
+            self.value = Literal::Number(0f32);
             return;
         }
 
-        match self.get_type() {
+        match self.node_type {
             NodeType::Add if self.left.borrow().is_zero() => *self = self.right.borrow().clone(),
             NodeType::Add if self.right.borrow().is_zero() => *self = self.left.borrow().clone(),
             NodeType::Sub if self.right.borrow().is_zero() => *self = self.left.borrow().clone(),
@@ -110,7 +110,7 @@ impl Node {
                 self.left.borrow().negate();
                 self.right.borrow().negate();
             }
-            NodeType::Pow if self.right.borrow().get_type() == NodeType::Number && self.right.borrow().number == 1f32 => {
+            NodeType::Pow if self.right.borrow().node_type == NodeType::Number && self.right.borrow().number == 1f32 => {
                 *self = self.left.borrow().clone()
             }
             NodeType::Pow if self.right.borrow().is_zero() => {
