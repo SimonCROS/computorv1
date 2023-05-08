@@ -1,15 +1,16 @@
 package fr.simoncros.computorv1.lexer;
 
+import static fr.simoncros.computorv1.utils.Result.err;
+import static fr.simoncros.computorv1.utils.Result.ok;
+
 import java.text.CharacterIterator;
 import java.text.StringCharacterIterator;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Predicate;
 
 import fr.simoncros.computorv1.utils.Result;
-import static fr.simoncros.computorv1.utils.Result.ok;
-import static fr.simoncros.computorv1.utils.Result.err;
 
 public class Lexer {
 	CharacterIterator chars;
@@ -18,78 +19,102 @@ public class Lexer {
 		this.chars = new StringCharacterIterator(expression);
 	}
 
-	public List<Token> tokenize() {
+	public Result<List<Token>, String> tokenize() {
 		List<Token> tokens = new ArrayList<Token>();
 
 		while (true) {
-			Token token = this.next_token();
-			if (token == Token.EOF)
-				break;
-			else
-				tokens.add(token);
+			Result<Token, String> token = this.next_token();
+			if (token.isOk()) {
+				if (token.ok().get().type == TokenType.EOF)
+					break;
+				else
+					tokens.add(token.ok().get());
+			} else {
+				return err(token.err().get());
+			}
 		}
-		return tokens;
+		return ok(tokens);
 	}
 
 	public Result<Token, String> next_token() {
-		Token token;
+		TokenType tokenType;
 
-		while (Character.isSpaceChar(this.chars.current())) {
-			this.chars.next();
-		}
 		char current = this.chars.current();
 		switch (current) {
-			case '+' -> token = Token.ADD;
-			case '-' -> token = Token.SUB;
-			case '*' -> token = Token.MUL;
-			case '/' -> token = Token.DIV;
-			case '^' -> token = Token.POW;
-			case '=' -> token = Token.EQUAL;
-			case '(' -> token = Token.LPARENT;
-			case ')' -> token = Token.RPARENT;
-			case '\0' -> token = Token.EOF;
-			default:
-				Optional<String> identifier = this.readIdentifier();
-				if (identifier.isPresent()) {
-					token = Token.newIdentifier(identifier.get());
+			case '+' -> tokenType = TokenType.ADD;
+			case '-' -> tokenType = TokenType.SUB;
+			case '*' -> tokenType = TokenType.MUL;
+			case '/' -> tokenType = TokenType.DIV;
+			case '^' -> tokenType = TokenType.POW;
+			case '=' -> tokenType = TokenType.EQUAL;
+			case '(' -> tokenType = TokenType.LPARENT;
+			case ')' -> tokenType = TokenType.RPARENT;
+			case CharacterIterator.DONE -> tokenType = TokenType.EOF;
+			default -> {
+				if (this.readSpaces()) {
+					return ok(new Token(TokenType.SPACE));
 				} else {
-					Optional<Float> number = this.readNumber();
-					if (number.isPresent()) {
-						token = Token.newNumber(number.get());
+					Optional<String> identifier = this.readIdentifier();
+					if (identifier.isPresent()) {
+						return ok(Token.newIdentifier(identifier.get()));
 					} else {
-						return err(String.format("Unknown token %c", current));
+						Optional<Float> number = this.readNumber();
+						if (number.isPresent()) {
+							return ok(Token.newNumber(number.get()));
+						} else {
+							return err(String.format("Unknown token %c", current));
+						}
 					}
 				}
-				break;
+			}
 		}
 		this.chars.next();
-		return ok(token);
+		return ok(new Token(tokenType));
 	}
 
-	public 
+	public boolean readSpaces() {
+		char current = this.chars.current();
 
-//     fn read_identifier(&mut self) -> Option<String> {
-//         let mut ret: String = String::new();
-//         loop {
-//             match self.chars.next_if(|&c| c.is_alphabetic() || c == '_') {
-//                 Some(c) => ret.push(c),
-//                 None => break,
-//             }
-//         }
-//         Some(ret).filter(|s| !s.is_empty())
-//     }
+		if (!Character.isSpaceChar(current)) {
+			return false;
+		}
+		while (Character.isSpaceChar(current)) {
+			current = this.chars.next();
+		}
+		return true;
+	}
 
-//     fn read_number(&mut self) -> Option<Result<f32, String>> {
-//         let mut ret: String = String::new();
-//         loop {
-//             match self.chars.next_if(|&c| c.is_ascii_digit() || c == '.') {
-//                 Some(c) => ret.push(c),
-//                 None => break,
-//             }
-//         }
-//         let tmp = ret.clone();
-//         Some(ret)
-//             .filter(|s| !s.is_empty())
-//             .map(|s| s.parse::<f32>().map_err(|_| tmp))
-//     }
+	public Optional<String> readIdentifier() {
+		String result = new String();
+
+		char current = this.chars.current();
+		while (true) {
+			if (Character.isLetter(current) || current == '_') {
+				result += current;
+				current = this.chars.next();
+			} else {
+				break;
+			}
+		}
+		return Optional.of(result).filter(Predicate.not(String::isEmpty));
+	}
+
+	public Optional<Float> readNumber() {
+		String result = new String();
+
+		char current = this.chars.current();
+		while (true) {
+			if (Character.isDigit(current) || current == '.') {
+				result += current;
+				current = this.chars.next();
+			} else {
+				break;
+			}
+		}
+		try {
+			return Optional.of(Float.parseFloat(result));
+		} catch (Exception ex) {
+			return Optional.empty();
+		}
+	}
 }
