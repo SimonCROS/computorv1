@@ -1,6 +1,5 @@
 package fr.simoncros.computorv1.lexer;
 
-import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.Locale;
 
