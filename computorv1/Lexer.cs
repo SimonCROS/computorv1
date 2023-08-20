@@ -1,4 +1,4 @@
-﻿using System.Globalization;
+﻿using computorv1.Exceptions;
 using computorv1.Tokens;
 
 namespace computorv1
@@ -23,7 +23,7 @@ namespace computorv1
                     tokens.Add(token);
                 }
             }
-            catch (Exception ex)
+            catch (ParsingException ex)
             {
                 Console.WriteLine($"An error occured while reading input: {ex.Message}");
                 return false;
@@ -48,8 +48,11 @@ namespace computorv1
                 '\0' => null!,
                 _ => NextComplexToken(),
             };
-            _chars.MoveNext();
-            return c != '\0';
+            if (token is not ComplexToken)
+            {
+                _chars.MoveNext();
+            }
+            return token != null;
         }
 
         private Token NextComplexToken()
@@ -62,7 +65,7 @@ namespace computorv1
             {
                 return new NumberToken(number);
             }
-            throw new Exception($"Error parsing token at pos {_chars.Index + 1} ({_chars.Peek()}).");
+            throw new ParsingException($"Error parsing token at pos {_chars.Index + 1} ({_chars.Peek()}).");
         }
 
         private bool ReadIdentifier(out string identifier)
@@ -84,6 +87,8 @@ namespace computorv1
 
         private bool ReadNumber(out float number)
         {
+            number = 0;
+
             string numStr = "";
             while (true)
             {
@@ -98,11 +103,21 @@ namespace computorv1
             }
             if (numStr.Length != 0)
             {
-                number = float.Parse(numStr);
+                try
+                {
+                    number = float.Parse(numStr);
+                    if (!float.IsFinite(number))
+                    {
+                        throw new OverflowException($"{numStr} was too big.");
+                    }
+                }
+                catch (Exception ex) when (ex is OverflowException or FormatException)
+                {
+                    throw new ParsingException(ex.Message, ex);
+                }
                 return true;
             }
 
-            number = 0;
             return false;
         }
     }

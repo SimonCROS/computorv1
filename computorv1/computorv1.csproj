@@ -9,8 +9,10 @@
 
   <ItemGroup>
     <None Remove="Tokens\" />
+    <None Remove="Exceptions\" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Tokens\" />
+    <Folder Include="Exceptions\" />
   </ItemGroup>
 </Project>
