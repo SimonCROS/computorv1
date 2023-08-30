@@ -1,11 +1,10 @@
 ﻿namespace tests;
 
-using System.Diagnostics;
 using computorv1;
 using computorv1.Tokens;
 
 [TestClass]
-public class ParsingTest
+public class LexingTests
 {
     [TestMethod]
     public void Subject1NoBlanks()

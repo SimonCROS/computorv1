@@ -12,10 +12,7 @@ if (args.Length != 1)
 
 if (new Lexer(args[0]).Tokenize(out List<Token> tokens))
 {
-    foreach (Token token in tokens)
-    {
-        Console.WriteLine(token);
-    }
+    new Parser(tokens).Parse();
 }
 else
 {
