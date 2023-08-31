@@ -1,11 +1,18 @@
-﻿namespace tests;
+﻿namespace Tests;
 
+using System.Globalization;
 using computorv1;
 using computorv1.Tokens;
 
 [TestClass]
 public class LexingTests
 {
+    [TestInitialize]
+    public void SetCulture()
+    {
+        Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US"); 
+    }
+
     [TestMethod]
     public void Subject1NoBlanks()
     {

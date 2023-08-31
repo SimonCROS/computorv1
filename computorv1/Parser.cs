@@ -14,21 +14,23 @@ public class Parser
         _tokens = new(tokens);
     }
 
-    public EqualNode Parse()
+    public bool Parse([MaybeNullWhen(false)] out Node result)
     {
-        if (Assignation(out Node? result))
+        result = null;
+        
+        bool ret = Assignation(out Node? equal);
+        if (_tokens.MoveNext() && _tokens.Current is not null)
         {
-            Console.WriteLine(result);
+            Console.WriteLine($"Unexpected token: {_tokens.Current}");
+            return false;
         }
-        else
+        if (!ret)
         {
-            if (_tokens.MoveNext() && _tokens.Current is not null)
-                Console.WriteLine($"Unexpected token: {_tokens.Current}");
-            else
-                Console.WriteLine($"Unexpected end of file");
-            Environment.Exit(1);
+            Console.WriteLine($"Unexpected end of file");
+            return false;
         }
-        return default!;
+        result = equal!;
+        return true;
     }
 
     public bool Assignation([MaybeNullWhen(false)] out Node result)
