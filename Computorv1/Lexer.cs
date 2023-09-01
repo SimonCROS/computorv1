@@ -66,7 +66,7 @@ public struct Lexer
         {
             return new NumberToken(number);
         }
-        throw new ParsingException($"Error parsing token at pos {_chars.Index + 1} ({_chars.Peek()})");
+        throw new ParsingException($"Error: unexpected token at pos {_chars.Index + 1}: {_chars.Peek()}");
     }
 
     private bool ReadIdentifier(out string identifier)
@@ -109,12 +109,12 @@ public struct Lexer
                 number = float.Parse(numStr);
                 if (!float.IsFinite(number))
                 {
-                    throw new ParsingException($"Number `{numStr}` is too big");
+                    throw new ParsingException($"Error: number `{numStr}` is too big");
                 }
             }
-            catch (Exception ex) when (ex is FormatException)
+            catch (Exception ex)
             {
-                throw new ParsingException($"Number `{numStr}` is not in a valid format", ex);
+                throw new ParsingException($"Error: number `{numStr}` is not in a valid format", ex);
             }
             return true;
         }

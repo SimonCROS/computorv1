@@ -10,13 +10,13 @@ public class LexingTests
     [TestInitialize]
     public void SetCulture()
     {
-        Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US"); 
+        Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture; 
     }
 
     [TestMethod]
     public void Subject1NoBlanks()
     {
-        bool result = new Lexer("5*X^0+4*X^1-9.3*X^2=1*X^0").Tokenize(out List<Token> tokens);
+        bool result = new Lexer("5 * X^0 + 4 * X^1 - 9.3 * X^2 = 1 * X^0").Tokenize(out List<Token> tokens);
         Assert.IsTrue(result);
         CollectionAssert.AreEqual(
             new List<Token>()

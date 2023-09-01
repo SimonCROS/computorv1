@@ -19,6 +19,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\computorv1\computorv1.csproj" />
+    <ProjectReference Include="..\Computorv1\Computorv1.csproj" />
   </ItemGroup>
 </Project>

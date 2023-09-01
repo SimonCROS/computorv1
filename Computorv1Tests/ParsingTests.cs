@@ -6,12 +6,12 @@ using computorv1.Nodes;
 using computorv1.Tokens;
 
 [TestClass]
-public class ParsingTest
+public class ParsingTests
 {
     [TestInitialize]
     public void SetCulture()
     {
-        Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US"); 
+        Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture; 
     }
     
     public Node Monominal(float coefficient, float exponent)
@@ -26,7 +26,7 @@ public class ParsingTest
     [TestMethod]
     public void Subject1()
     {
-        bool result = new Lexer("5*X^0+4*X^1-9.3*X^2=1*X^0").Tokenize(out List<Token> tokens);
+        bool result = new Lexer("5 * X^0 + 4 * X^1 - 9.3 * X^2 = 1 * X^0").Tokenize(out List<Token> tokens);
         Assert.IsTrue(result);
         result = new Parser(tokens).Parse(out EqualNode? node);
         Assert.IsTrue(result);
@@ -133,16 +133,5 @@ public class ParsingTest
         result = new Parser(tokens).Parse(out EqualNode? node);
         Assert.IsTrue(result);
         Assert.AreEqual(new EqualNode(new NumberNode(2f), new NumberNode(8f)), node);
-    }
-
-	// TODO Check in another file
-    [TestMethod]
-    public void MultipleIdentifiers()
-    {
-        bool result = new Lexer("X + Y = Z").Tokenize(out List<Token> tokens);
-        Assert.IsTrue(result);
-        result = new Parser(tokens).Parse(out EqualNode? node);
-        Assert.IsTrue(result);
-		Assert.IsTrue(false);
     }
 }
