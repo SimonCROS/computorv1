@@ -19,7 +19,19 @@ if (new Lexer(args[0]).Tokenize(out List<Token> tokens))
         if (new Validator(maxIdentifiersCount: 1).Validate(node))
         {
             Console.WriteLine(node);
-            ListMonominals(node);
+
+            Node lhs = ((EqualNode)node).Left;
+            Node rhs = ((EqualNode)node).Right;
+            Console.WriteLine("LHS:");
+            foreach (Monominal monominal in ListMonominals(lhs))
+            {
+                Console.WriteLine($" - {monominal}");
+            }
+            Console.WriteLine("RHS:");
+            foreach (Monominal monominal in ListMonominals(rhs))
+            {
+                Console.WriteLine($" - {monominal}");
+            }
         }
         else
         {
@@ -54,14 +66,27 @@ void ListMonominalsRec(Node current, List<Monominal> monominals)
     }
     else if (current is MulNode mul)
     {
-        if (mul.Left is NumberNode coefficient && mul.Right is PowNode pow)
+        NumberNode coefficient = (NumberNode)mul.Left;
+        if (mul.Right is PowNode pow)
         {
-            if (pow.Left is IdentifierNode identifier && pow.Right is NumberNode exponent)
+            if (pow.Left is IdentifierNode identifierNode && pow.Right is NumberNode exponent)
             {
-                monominals.Add(new Monominal(coefficient.Value, exponent.Value));
+                monominals.Add(new Monominal(coefficient.Value, identifierNode.Value, exponent.Value));
             }
         }
+        else if (mul.Right is IdentifierNode identifierNode)
+        {
+            monominals.Add(new Monominal(coefficient.Value, identifierNode.Value, 1));
+        }
+    }
+    else if (current is IdentifierNode identifierNode)
+    {
+        monominals.Add(new Monominal(1, identifierNode.Value, 1));
+    }
+    else if (current is NumberNode numberNode)
+    {
+        monominals.Add(new Monominal(numberNode.Value, "", 0));
     }
 }
 
-record struct Monominal(float Coefficient, float Exponent);
+record struct Monominal(float Coefficient, string Identifier, float Exponent);
