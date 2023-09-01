@@ -13,13 +13,18 @@ if (args.Length != 1)
 
 if (new Lexer(args[0]).Tokenize(out List<Token> tokens))
 {
-    if (new Parser(tokens).Parse(out EqualNode? result))
+    if (new Parser(tokens).Parse(out Node? node))
     {
-        Console.WriteLine(result);
-        Node lhs = Utils.Simplify(result.Left);
-        Node rhs = Utils.Simplify(result.Right);
-        Console.WriteLine($"({lhs} = {rhs})");
-        ListMonominals(result.Right);
+        node = Utils.Simplify(node);
+        if (new Validator(maxIdentifiersCount: 1).Validate(node))
+        {
+            Console.WriteLine(node);
+            ListMonominals(node);
+        }
+        else
+        {
+            return 1;
+        }
     }
     else
     {

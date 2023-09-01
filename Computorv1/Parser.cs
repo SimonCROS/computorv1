@@ -14,7 +14,7 @@ public class Parser
         _tokens = new(tokens);
     }
 
-    public bool Parse([MaybeNullWhen(false)] out EqualNode result)
+    public bool Parse([MaybeNullWhen(false)] out Node result)
     {
         result = null;
         

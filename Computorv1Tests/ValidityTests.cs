@@ -17,20 +17,16 @@ public class ValidityTests
     [TestMethod]
     public void MultipleIdentifiers()
     {
-        bool result = new Lexer("X + Y = Z").Tokenize(out List<Token> tokens);
-        Assert.IsTrue(result);
-        result = new Parser(tokens).Parse(out EqualNode? node);
-        Assert.IsTrue(result);
-        Assert.IsTrue(false);
+        Assert.IsTrue(new Lexer("X + Y = Z").Tokenize(out List<Token> tokens));
+        Assert.IsTrue(new Parser(tokens).Parse(out Node? node));
+        Assert.IsFalse(new Validator(1).Validate(node!));
     }
 
     [TestMethod]
     public void IdentifierAsExponent()
     {
-        bool result = new Lexer("2 ^ X = 42").Tokenize(out List<Token> tokens);
-        Assert.IsTrue(result);
-        result = new Parser(tokens).Parse(out EqualNode? node);
-        Assert.IsTrue(result);
-        Assert.IsTrue(false);
+        Assert.IsTrue(new Lexer("2 ^ X = 42").Tokenize(out List<Token> tokens));
+        Assert.IsTrue(new Parser(tokens).Parse(out Node? node));
+        Assert.IsFalse(new Validator(1).Validate(node!));
     }
 }

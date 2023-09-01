@@ -11,9 +11,9 @@ public class ParsingTests
     [TestInitialize]
     public void SetCulture()
     {
-        Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture; 
+        Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
     }
-    
+
     public Node Monominal(float coefficient, float exponent)
     {
         return new MulNode(
@@ -26,10 +26,8 @@ public class ParsingTests
     [TestMethod]
     public void Subject1()
     {
-        bool result = new Lexer("5 * X^0 + 4 * X^1 - 9.3 * X^2 = 1 * X^0").Tokenize(out List<Token> tokens);
-        Assert.IsTrue(result);
-        result = new Parser(tokens).Parse(out EqualNode? node);
-        Assert.IsTrue(result);
+        Assert.IsTrue(new Lexer("5 * X^0 + 4 * X^1 - 9.3 * X^2 = 1 * X^0").Tokenize(out List<Token> tokens));
+        Assert.IsTrue(new Parser(tokens).Parse(out Node? node));
         Assert.AreEqual(
             new EqualNode(
                 new SubNode(
@@ -44,10 +42,8 @@ public class ParsingTests
     [TestMethod]
     public void Subject2()
     {
-        bool result = new Lexer("5 * X^0 + 4 * X^1 = 4 * X^0").Tokenize(out List<Token> tokens);
-        Assert.IsTrue(result);
-        result = new Parser(tokens).Parse(out EqualNode? node);
-        Assert.IsTrue(result);
+        Assert.IsTrue(new Lexer("5 * X^0 + 4 * X^1 = 4 * X^0").Tokenize(out List<Token> tokens));
+        Assert.IsTrue(new Parser(tokens).Parse(out Node? node));
         Assert.AreEqual(
             new EqualNode(
                 new AddNode(
@@ -60,10 +56,8 @@ public class ParsingTests
     [TestMethod]
     public void Subject3()
     {
-        bool result = new Lexer("8 * X^0 - 6 * X^1 + 0 * X^2 - 5.6 * X^3 = 3 * X^0").Tokenize(out List<Token> tokens);
-        Assert.IsTrue(result);
-        result = new Parser(tokens).Parse(out EqualNode? node);
-        Assert.IsTrue(result);
+        Assert.IsTrue(new Lexer("8 * X^0 - 6 * X^1 + 0 * X^2 - 5.6 * X^3 = 3 * X^0").Tokenize(out List<Token> tokens));
+        Assert.IsTrue(new Parser(tokens).Parse(out Node? node));
         Assert.AreEqual(
             new EqualNode(
                 new SubNode(
@@ -80,58 +74,50 @@ public class ParsingTests
     [TestMethod]
     public void NoEqualSign()
     {
-        bool result = new Lexer("8 * X^0 - 6 * X^1 + 0 * X^2 - 5.6 * X^3 + 3 * X^0").Tokenize(out List<Token> tokens);
-        Assert.IsTrue(result);
+        Assert.IsTrue(new Lexer("8 * X^0 - 6 * X^1 + 0 * X^2 - 5.6 * X^3 + 3 * X^0").Tokenize(out List<Token> tokens));
         Assert.IsFalse(new Parser(tokens).Parse(out _));
     }
 
     [TestMethod]
     public void MultipleEqualSign()
     {
-        bool result = new Lexer("8 * X^0 - 6 * X^1 + 0 * X^2 = 5.6 * X^3 = 3 * X^0").Tokenize(out List<Token> tokens);
-        Assert.IsTrue(result);
+        Assert.IsTrue(new Lexer("8 * X^0 - 6 * X^1 + 0 * X^2 = 5.6 * X^3 = 3 * X^0").Tokenize(out List<Token> tokens));
         Assert.IsFalse(new Parser(tokens).Parse(out _));
     }
 
     [TestMethod]
     public void DoublePlusSign()
     {
-        bool result = new Lexer("2 + + 4 = 8").Tokenize(out List<Token> tokens);
-        Assert.IsTrue(result);
+        Assert.IsTrue(new Lexer("2 + + 4 = 8").Tokenize(out List<Token> tokens));
         Assert.IsFalse(new Parser(tokens).Parse(out _));
     }
 
     [TestMethod]
     public void DoubleMulSign()
     {
-        bool result = new Lexer("2 * * 4 = 8").Tokenize(out List<Token> tokens);
-        Assert.IsTrue(result);
+        Assert.IsTrue(new Lexer("2 * * 4 = 8").Tokenize(out List<Token> tokens));
         Assert.IsFalse(new Parser(tokens).Parse(out _));
     }
 
     [TestMethod]
     public void NoEqualLhs()
     {
-        bool result = new Lexer("= 8").Tokenize(out List<Token> tokens);
-        Assert.IsTrue(result);
+        Assert.IsTrue(new Lexer("= 8").Tokenize(out List<Token> tokens));
         Assert.IsFalse(new Parser(tokens).Parse(out _));
     }
 
     [TestMethod]
     public void NoEqualRhs()
     {
-        bool result = new Lexer("2 =").Tokenize(out List<Token> tokens);
-        Assert.IsTrue(result);
+        Assert.IsTrue(new Lexer("2 =").Tokenize(out List<Token> tokens));
         Assert.IsFalse(new Parser(tokens).Parse(out _));
     }
 
     [TestMethod]
     public void SimpleScalarAroundEqual()
     {
-        bool result = new Lexer("2 = 8").Tokenize(out List<Token> tokens);
-        Assert.IsTrue(result);
-        result = new Parser(tokens).Parse(out EqualNode? node);
-        Assert.IsTrue(result);
+        Assert.IsTrue(new Lexer("2 = 8").Tokenize(out List<Token> tokens));
+        Assert.IsTrue(new Parser(tokens).Parse(out Node? node));
         Assert.AreEqual(new EqualNode(new NumberNode(2f), new NumberNode(8f)), node);
     }
 }

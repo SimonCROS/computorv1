@@ -10,14 +10,13 @@ public class LexingTests
     [TestInitialize]
     public void SetCulture()
     {
-        Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture; 
+        Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
     }
 
     [TestMethod]
     public void Subject1NoBlanks()
     {
-        bool result = new Lexer("5 * X^0 + 4 * X^1 - 9.3 * X^2 = 1 * X^0").Tokenize(out List<Token> tokens);
-        Assert.IsTrue(result);
+        Assert.IsTrue(new Lexer("5 * X^0 + 4 * X^1 - 9.3 * X^2 = 1 * X^0").Tokenize(out List<Token> tokens));
         CollectionAssert.AreEqual(
             new List<Token>()
             {
@@ -51,8 +50,7 @@ public class LexingTests
     [TestMethod]
     public void Subject1LotOfBlanks()
     {
-        bool result = new Lexer("   5 *X^   0+ 4 * X^1 -9.3*X^  2=1*X^ 0    ").Tokenize(out List<Token> tokens);
-        Assert.IsTrue(result);
+        Assert.IsTrue(new Lexer("   5 *X^   0+ 4 * X^1 -9.3*X^  2=1*X^ 0    ").Tokenize(out List<Token> tokens));
         CollectionAssert.AreEqual(
             new List<Token>()
             {
@@ -86,8 +84,7 @@ public class LexingTests
     [TestMethod]
     public void Subject2()
     {
-        bool result = new Lexer("5 * X^0 + 4 * X^1 = 4 * X^0").Tokenize(out List<Token> tokens);
-        Assert.IsTrue(result);
+        Assert.IsTrue(new Lexer("5 * X^0 + 4 * X^1 = 4 * X^0").Tokenize(out List<Token> tokens));
         CollectionAssert.AreEqual(
             new List<Token>()
             {
@@ -115,8 +112,7 @@ public class LexingTests
     [TestMethod]
     public void Subject3()
     {
-        bool result = new Lexer("8 * X^0 - 6 * X^1 + 0 * X^2 - 5.6 * X^3 = 3 * X^0").Tokenize(out List<Token> tokens);
-        Assert.IsTrue(result);
+        Assert.IsTrue(new Lexer("8 * X^0 - 6 * X^1 + 0 * X^2 - 5.6 * X^3 = 3 * X^0").Tokenize(out List<Token> tokens));
         CollectionAssert.AreEqual(
             new List<Token>()
             {

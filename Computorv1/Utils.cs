@@ -45,5 +45,5 @@ public static class Utils
                 (Node left, Node right) => new PowNode(left, right)
             };
         return node;
-}
+    }
 }
