@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 25.0.1706.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "computorv1", "computorv1\computorv1.csproj", "{B80235E6-A3DF-471D-AD5F-28F8BE95EDEA}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Computorv1", "Computorv1\Computorv1.csproj", "{B80235E6-A3DF-471D-AD5F-28F8BE95EDEA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "tests", "tests\tests.csproj", "{C6EC2382-1AA3-4715-A52D-0B9903B5AC80}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Computorv1Tests", "Computorv1Tests\Computorv1Tests.csproj", "{C6EC2382-1AA3-4715-A52D-0B9903B5AC80}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -28,7 +28,7 @@ public class ParsingTest
     {
         bool result = new Lexer("5*X^0+4*X^1-9.3*X^2=1*X^0").Tokenize(out List<Token> tokens);
         Assert.IsTrue(result);
-        result = new Parser(tokens).Parse(out Node? node);
+        result = new Parser(tokens).Parse(out EqualNode? node);
         Assert.IsTrue(result);
         Assert.AreEqual(
             new EqualNode(
@@ -46,7 +46,7 @@ public class ParsingTest
     {
         bool result = new Lexer("5 * X^0 + 4 * X^1 = 4 * X^0").Tokenize(out List<Token> tokens);
         Assert.IsTrue(result);
-        result = new Parser(tokens).Parse(out Node? node);
+        result = new Parser(tokens).Parse(out EqualNode? node);
         Assert.IsTrue(result);
         Assert.AreEqual(
             new EqualNode(
@@ -62,7 +62,7 @@ public class ParsingTest
     {
         bool result = new Lexer("8 * X^0 - 6 * X^1 + 0 * X^2 - 5.6 * X^3 = 3 * X^0").Tokenize(out List<Token> tokens);
         Assert.IsTrue(result);
-        result = new Parser(tokens).Parse(out Node? node);
+        result = new Parser(tokens).Parse(out EqualNode? node);
         Assert.IsTrue(result);
         Assert.AreEqual(
             new EqualNode(
@@ -130,8 +130,19 @@ public class ParsingTest
     {
         bool result = new Lexer("2 = 8").Tokenize(out List<Token> tokens);
         Assert.IsTrue(result);
-        result = new Parser(tokens).Parse(out Node? node);
+        result = new Parser(tokens).Parse(out EqualNode? node);
         Assert.IsTrue(result);
         Assert.AreEqual(new EqualNode(new NumberNode(2f), new NumberNode(8f)), node);
+    }
+
+	// TODO Check in another file
+    [TestMethod]
+    public void MultipleIdentifiers()
+    {
+        bool result = new Lexer("X + Y = Z").Tokenize(out List<Token> tokens);
+        Assert.IsTrue(result);
+        result = new Parser(tokens).Parse(out EqualNode? node);
+        Assert.IsTrue(result);
+		Assert.IsTrue(false);
     }
 }

@@ -14,11 +14,11 @@ public class Parser
         _tokens = new(tokens);
     }
 
-    public bool Parse([MaybeNullWhen(false)] out Node result)
+    public bool Parse([MaybeNullWhen(false)] out EqualNode result)
     {
         result = null;
         
-        bool ret = Assignation(out Node? equal);
+        bool ret = Assignation(out EqualNode? equal);
         if (_tokens.MoveNext() && _tokens.Current is not null)
         {
             Console.WriteLine($"Unexpected token: {_tokens.Current}");
@@ -33,9 +33,10 @@ public class Parser
         return true;
     }
 
-    public bool Assignation([MaybeNullWhen(false)] out Node result)
+    public bool Assignation([MaybeNullWhen(false)] out EqualNode result)
     {
-        if (!Expr(out result))
+        result = null;
+        if (!Expr(out Node? lhs))
             return false;
 
         // Don't do loop so there is at most one assignation
@@ -44,7 +45,7 @@ public class Parser
         {
             _tokens.MoveNext();
             if (Factor(out Node? rhs))
-                result = new EqualNode(result, rhs);
+                result = new EqualNode(lhs, rhs);
             else
                 return false;
         }
