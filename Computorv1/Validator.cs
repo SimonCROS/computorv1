@@ -59,9 +59,13 @@ public class Validator
             case IdentifierNode identifierNode:
                 if (exponent)
                     throw new Exception($"Invalid expression: cannot use {identifierNode.Value} as exponent");
-                if (!_identifiers.Contains(identifierNode.Value) && _identifiers.Count == _maxIdentifiersCount)
-                    throw new Exception($"Invalid expression: too many identifiers (max {_maxIdentifiersCount})");
-                _identifiers.Add(identifierNode.Value);
+                if (!_identifiers.Contains(identifierNode.Value))
+                {
+                    if (_identifiers.Count >= _maxIdentifiersCount)
+                        throw new Exception($"Invalid expression: too many identifiers (max {_maxIdentifiersCount})");
+                    else
+                        _identifiers.Add(identifierNode.Value);
+                }
                 break;
             default:
                 return;

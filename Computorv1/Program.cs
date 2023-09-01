@@ -1,4 +1,5 @@
-﻿using System.Globalization;
+﻿using System.Diagnostics;
+using System.Globalization;
 using computorv1;
 using computorv1.Nodes;
 using computorv1.Tokens;
@@ -25,13 +26,15 @@ if (new Lexer(args[0]).Tokenize(out List<Token> tokens))
             Console.WriteLine("LHS:");
             foreach (Monominal monominal in ListMonominals(lhs))
             {
-                Console.WriteLine($" - {monominal}");
+                Console.Write($"{monominal} ");
             }
+            Console.WriteLine();
             Console.WriteLine("RHS:");
             foreach (Monominal monominal in ListMonominals(rhs))
             {
-                Console.WriteLine($" - {monominal}");
+                Console.Write($"{monominal} ");
             }
+            Console.WriteLine();
         }
         else
         {
@@ -57,36 +60,44 @@ List<Monominal> ListMonominals(Node node)
     return monominals;
 }
 
-void ListMonominalsRec(Node current, List<Monominal> monominals)
+void ListMonominalsRec(Node current, List<Monominal> monominals, float sign = 1)
 {
     if (current is AddNode or SubNode)
     {
-        ListMonominalsRec(((BinaryOperatorNode)current).Left, monominals);
-        ListMonominalsRec(((BinaryOperatorNode)current).Right, monominals);
+        ListMonominalsRec(((BinaryOperatorNode)current).Left, monominals, sign);
+        ListMonominalsRec(((BinaryOperatorNode)current).Right, monominals, current is SubNode ? -sign : sign);
     }
     else if (current is MulNode mul)
     {
         NumberNode coefficient = (NumberNode)mul.Left;
-        if (mul.Right is PowNode pow)
+        if (mul.Right is PowNode powNode)
         {
-            if (pow.Left is IdentifierNode identifierNode && pow.Right is NumberNode exponent)
-            {
-                monominals.Add(new Monominal(coefficient.Value, identifierNode.Value, exponent.Value));
-            }
+            monominals.Add(new Monominal(sign, coefficient.Value, ((IdentifierNode)powNode.Left).Value, ((NumberNode)powNode.Right).Value));
         }
         else if (mul.Right is IdentifierNode identifierNode)
         {
-            monominals.Add(new Monominal(coefficient.Value, identifierNode.Value, 1));
+            monominals.Add(new Monominal(sign, coefficient.Value, identifierNode.Value, 1));
         }
+    }
+    else if (current is PowNode powNode)
+    {
+        monominals.Add(new Monominal(sign, 1, ((IdentifierNode)powNode.Left).Value, ((NumberNode)powNode.Right).Value));
     }
     else if (current is IdentifierNode identifierNode)
     {
-        monominals.Add(new Monominal(1, identifierNode.Value, 1));
+        monominals.Add(new Monominal(sign, 1, identifierNode.Value, 1));
     }
     else if (current is NumberNode numberNode)
     {
-        monominals.Add(new Monominal(numberNode.Value, "", 0));
+        monominals.Add(new Monominal(sign, numberNode.Value, "", 0));
     }
 }
 
-record struct Monominal(float Coefficient, string Identifier, float Exponent);
+record struct Monominal(float Sign, float Coefficient, string Identifier, float Exponent)
+{
+    public override readonly string ToString()
+    {
+        string signStr = Sign > 0 ? "+" : "-";
+        return $"{signStr} ({Coefficient }{Identifier} ^ {Exponent})";
+    }
+}
