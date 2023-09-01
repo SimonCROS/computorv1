@@ -44,7 +44,7 @@ public class Parser
         if (token is EqualToken)
         {
             _tokens.MoveNext();
-            if (Factor(out Node? rhs))
+            if (Expr(out Node? rhs))
                 result = new EqualNode(lhs, rhs);
             else
                 return false;
