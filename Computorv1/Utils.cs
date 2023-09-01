@@ -32,6 +32,10 @@ public static class Utils
                 (Node other, NumberNode right) when right.Value == 1 => other,
                 (NumberNode left, _) when left.Value == 0 => new NumberNode(0),
                 (_, NumberNode right) when right.Value == 0 => new NumberNode(0),
+                (Node left, PowNode right) when left == right.Left && right.Right is NumberNode exp => new PowNode(left, new NumberNode(exp.Value + 1)),
+                (PowNode left, Node right) when right == left.Left && left.Right is NumberNode exp => new PowNode(right, new NumberNode(exp.Value + 1)),
+                (Node left, Node right) when left == right => new PowNode(left, new NumberNode(2)),
+                (Node left, NumberNode right) => new MulNode(right, left),
                 (Node left, Node right) => new MulNode(left, right)
             };
         if (node is PowNode pow)

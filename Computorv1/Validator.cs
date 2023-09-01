@@ -30,41 +30,41 @@ public class Validator
 
     private void InternalValidate(Node node, int level, bool inMul, bool exponent)
     {
-        if (node is EqualNode equalNode)
+        switch (node)
         {
-            if (level != 0)
-                throw new Exception("Invalid expression: = should be on the top level");
-            InternalValidate(equalNode.Left, level + 1, inMul, exponent);
-            InternalValidate(equalNode.Right, level + 1, inMul, exponent);
-        }
-        else if (node is AddNode or SubNode)
-        {
-            if (inMul || exponent)
-                throw new Exception("Invalid expression: non constant nested + or -");
-            InternalValidate(((BinaryOperatorNode)node).Left, level + 1, inMul, exponent);
-            InternalValidate(((BinaryOperatorNode)node).Right, level + 1, inMul, exponent);
-        }
-        else if (node is MulNode mulNode)
-        {
-            if (inMul || exponent)
-                throw new Exception("Invalid expression: non constant nested multiplication");
-            InternalValidate(mulNode.Left, level + 1, true, exponent);
-            InternalValidate(mulNode.Right, level + 1, true, exponent);
-        }
-        else if (node is PowNode powNode)
-        {
-            if (exponent)
-                throw new Exception("Invalid expression: non constant nested pow");
-            InternalValidate(powNode.Left, level + 1, inMul, exponent);
-            InternalValidate(powNode.Right, level + 1, inMul, true);
-        }
-        else if (node is IdentifierNode identifierNode)
-        {
-            if (exponent)
-                throw new Exception($"Invalid expression: cannot use {identifierNode.Value} as exponent");
-            if (!_identifiers.Contains(identifierNode.Value) && _identifiers.Count == _maxIdentifiersCount)
-                throw new Exception($"Invalid expression: too many identifiers (max {_maxIdentifiersCount})");
-            _identifiers.Add(identifierNode.Value);
+            case EqualNode equalNode:
+                if (level != 0)
+                    throw new Exception("Invalid expression: = should be on the top level");
+                InternalValidate(equalNode.Left, level + 1, inMul, exponent);
+                InternalValidate(equalNode.Right, level + 1, inMul, exponent);
+                break;
+            case AddNode or SubNode:
+                if (inMul || exponent)
+                    throw new Exception("Invalid expression: non constant nested + or -");
+                InternalValidate(((BinaryOperatorNode)node).Left, level + 1, inMul, exponent);
+                InternalValidate(((BinaryOperatorNode)node).Right, level + 1, inMul, exponent);
+                break;
+            case MulNode mulNode:
+                if (inMul || exponent)
+                    throw new Exception("Invalid expression: non constant nested multiplication");
+                InternalValidate(mulNode.Left, level + 1, true, exponent);
+                InternalValidate(mulNode.Right, level + 1, true, exponent);
+                break;
+            case PowNode powNode:
+                if (exponent)
+                    throw new Exception("Invalid expression: non constant nested pow");
+                InternalValidate(powNode.Left, level + 1, inMul, exponent);
+                InternalValidate(powNode.Right, level + 1, inMul, true);
+                break;
+            case IdentifierNode identifierNode:
+                if (exponent)
+                    throw new Exception($"Invalid expression: cannot use {identifierNode.Value} as exponent");
+                if (!_identifiers.Contains(identifierNode.Value) && _identifiers.Count == _maxIdentifiersCount)
+                    throw new Exception($"Invalid expression: too many identifiers (max {_maxIdentifiersCount})");
+                _identifiers.Add(identifierNode.Value);
+                break;
+            default:
+                return;
         }
     }
 }

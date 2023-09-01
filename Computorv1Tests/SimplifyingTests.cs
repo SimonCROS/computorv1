@@ -39,7 +39,7 @@ public class SimplifyingTests
     }
 
     [TestMethod]
-    public void SimpleAddition_NumberPlusNumber()
+    public void Addition_Number_Number()
     {
         Assert.IsTrue(new Lexer("2 + 2 = 4").Tokenize(out List<Token> tokens));
         Assert.IsTrue(new Parser(tokens).Parse(out Node? node));
@@ -47,7 +47,7 @@ public class SimplifyingTests
     }
 
     [TestMethod]
-    public void SimpleAddition_NumberPlusZero()
+    public void Addition_Number_Zero()
     {
         Assert.IsTrue(new Lexer("4 + 0 = 4").Tokenize(out List<Token> tokens));
         Assert.IsTrue(new Parser(tokens).Parse(out Node? node));
@@ -55,7 +55,7 @@ public class SimplifyingTests
     }
 
     [TestMethod]
-    public void SimpleAddition_IdentifierPlusZero()
+    public void Addition_Identifier_Zero()
     {
         Assert.IsTrue(new Lexer("X + 0 = 4").Tokenize(out List<Token> tokens));
         Assert.IsTrue(new Parser(tokens).Parse(out Node? node));
@@ -63,7 +63,7 @@ public class SimplifyingTests
     }
 
     [TestMethod]
-    public void SimpleAddition_ZeroPlusIdentifier()
+    public void Addition_Zero_Identifier()
     {
         Assert.IsTrue(new Lexer("0 + X = 4").Tokenize(out List<Token> tokens));
         Assert.IsTrue(new Parser(tokens).Parse(out Node? node));
@@ -71,7 +71,7 @@ public class SimplifyingTests
     }
 
     [TestMethod]
-    public void SimpleSubtraction_NumberMinusNumber()
+    public void Subtraction_Number_Number()
     {
         Assert.IsTrue(new Lexer("8 - 4 = 4").Tokenize(out List<Token> tokens));
         Assert.IsTrue(new Parser(tokens).Parse(out Node? node));
@@ -79,7 +79,7 @@ public class SimplifyingTests
     }
 
     [TestMethod]
-    public void SimpleSubtraction_NumberMinusZero()
+    public void Subtraction_Number_Zero()
     {
         Assert.IsTrue(new Lexer("4 - 0 = 4").Tokenize(out List<Token> tokens));
         Assert.IsTrue(new Parser(tokens).Parse(out Node? node));
@@ -87,7 +87,7 @@ public class SimplifyingTests
     }
 
     [TestMethod]
-    public void SimpleSubtraction_IdentifierMinusZero()
+    public void Subtraction_Identifier_Zero()
     {
         Assert.IsTrue(new Lexer("X - 0 = 4").Tokenize(out List<Token> tokens));
         Assert.IsTrue(new Parser(tokens).Parse(out Node? node));
@@ -95,7 +95,7 @@ public class SimplifyingTests
     }
 
     [TestMethod]
-    public void SimpleSubtraction_ZeroMinusIdentifier()
+    public void Subtraction_Zero_Identifier()
     {
         Assert.IsTrue(new Lexer("0 - X = 4").Tokenize(out List<Token> tokens));
         Assert.IsTrue(new Parser(tokens).Parse(out Node? node));
@@ -103,7 +103,7 @@ public class SimplifyingTests
     }
 
     [TestMethod]
-    public void SimpleSubtraction_IdentifierMinusIdentifier()
+    public void Subtraction_Identifier_Identifier()
     {
         Assert.IsTrue(new Lexer("X - X = 0").Tokenize(out List<Token> tokens));
         Assert.IsTrue(new Parser(tokens).Parse(out Node? node));
@@ -111,10 +111,50 @@ public class SimplifyingTests
     }
 
     [TestMethod]
-    public void SimpleSubtraction_SameParts()
+    public void Subtraction_SameParts()
     {
         Assert.IsTrue(new Lexer("1 * X ^ 4 * 7 ^ X - 1 * X ^ 4 * 7 ^ X = 0").Tokenize(out List<Token> tokens));
         Assert.IsTrue(new Parser(tokens).Parse(out Node? node));
         Assert.AreEqual("(0 = 0)", Utils.Simplify(node!).ToString());
+    }
+
+    [TestMethod]
+    public void Multiplication_Number_Number()
+    {
+        Assert.IsTrue(new Lexer("6 * 7 = 42").Tokenize(out List<Token> tokens));
+        Assert.IsTrue(new Parser(tokens).Parse(out Node? node));
+        Assert.AreEqual("(42 = 42)", Utils.Simplify(node!).ToString());
+    }
+
+    [TestMethod]
+    public void Multiplication_Number_Identifier()
+    {
+        Assert.IsTrue(new Lexer("6 * X = 42").Tokenize(out List<Token> tokens));
+        Assert.IsTrue(new Parser(tokens).Parse(out Node? node));
+        Assert.AreEqual("((6 * X) = 42)", Utils.Simplify(node!).ToString());
+    }
+
+    [TestMethod]
+    public void Multiplication_Identifier_Number()
+    {
+        Assert.IsTrue(new Lexer("X * 6 = 42").Tokenize(out List<Token> tokens));
+        Assert.IsTrue(new Parser(tokens).Parse(out Node? node));
+        Assert.AreEqual("((6 * X) = 42)", Utils.Simplify(node!).ToString());
+    }
+
+    [TestMethod]
+    public void Multiplication_Identifier_Identifier_To_Exponent()
+    {
+        Assert.IsTrue(new Lexer("X * X = 42").Tokenize(out List<Token> tokens));
+        Assert.IsTrue(new Parser(tokens).Parse(out Node? node));
+        Assert.AreEqual("((X ^ 2) = 42)", Utils.Simplify(node!).ToString());
+    }
+
+    [TestMethod]
+    public void Multiplication_Identifier_Identifier_Identifier_To_Exponent()
+    {
+        Assert.IsTrue(new Lexer("X * X * X = 42").Tokenize(out List<Token> tokens));
+        Assert.IsTrue(new Parser(tokens).Parse(out Node? node));
+        Assert.AreEqual("((X ^ 3) = 42)", Utils.Simplify(node!).ToString());
     }
 }

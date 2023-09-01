@@ -29,4 +29,12 @@ public class ValidityTests
         Assert.IsTrue(new Parser(tokens).Parse(out Node? node));
         Assert.IsFalse(new Validator(1).Validate(node!));
     }
+
+    [TestMethod]
+    public void NestedNonConstMultiplication()
+    {
+        Assert.IsTrue(new Lexer("2 * X * X = 42").Tokenize(out List<Token> tokens));
+        Assert.IsTrue(new Parser(tokens).Parse(out Node? node));
+        Assert.IsFalse(new Validator(1).Validate(node!));
+    }
 }
