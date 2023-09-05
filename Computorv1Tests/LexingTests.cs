@@ -1,4 +1,4 @@
-﻿namespace Tests;
+﻿namespace Computorv1Tests.Unit;
 
 using System.Globalization;
 using computorv1;
