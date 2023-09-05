@@ -67,6 +67,10 @@ public class Validator
                         _identifiers.Add(identifierNode.Value);
                 }
                 break;
+            case NumberNode numberNode:
+                if (exponent && !float.IsInteger(numberNode.Value))
+                    throw new Exception("Invalid expression: cannot use a floating number as exponent");
+                break;
             default:
                 return;
         }

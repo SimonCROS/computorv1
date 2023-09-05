@@ -74,7 +74,7 @@ public static class Utils
             NumberNode coefficient = (NumberNode)mul.Left;
             if (mul.Right is PowNode powNode)
             {
-                monominals.Add(new Monominal(coefficient.Value * sign, ((IdentifierNode)powNode.Left).Value, ((NumberNode)powNode.Right).Value));
+                monominals.Add(new Monominal(coefficient.Value * sign, ((IdentifierNode)powNode.Left).Value, (int)((NumberNode)powNode.Right).Value));
             }
             else if (mul.Right is IdentifierNode identifierNode)
             {
@@ -83,7 +83,7 @@ public static class Utils
         }
         else if (current is PowNode powNode)
         {
-            monominals.Add(new Monominal(1 * sign, ((IdentifierNode)powNode.Left).Value, ((NumberNode)powNode.Right).Value));
+            monominals.Add(new Monominal(1 * sign, ((IdentifierNode)powNode.Left).Value, (int)((NumberNode)powNode.Right).Value));
         }
         else if (current is IdentifierNode identifierNode)
         {

@@ -21,11 +21,40 @@ if (new Lexer(args[0]).Tokenize(out List<Token> tokens))
         Node standard = Utils.Simplify(new SubNode(equalNode.Left, equalNode.Right));
         if (new Validator(maxIdentifiersCount: 1).Validate(standard))
         {
-            List<Monominal> monominals = Utils.ListMonominals(standard);
+            Console.WriteLine($"Reduced form: {standard}");
+
+            Dictionary<float, Monominal> monominalsByExponent = new();
+            foreach (Monominal monominal in Utils.ListMonominals(standard))
+            {
+                if (monominalsByExponent.TryGetValue(monominal.Exponent, out Monominal existingMonominal))
+                {
+                    float newCoefficient = existingMonominal.Coefficient + monominal.Coefficient;
+                    if (newCoefficient == 0)
+                    {
+                        monominalsByExponent.Remove(monominal.Exponent);
+                        continue;
+                    }
+
+                    monominalsByExponent[monominal.Exponent] = new Monominal(newCoefficient, monominal.Identifier, monominal.Exponent);
+                }
+                else
+                {
+                    monominalsByExponent.Add(monominal.Exponent, monominal);
+                }
+            }
+
+            List<Monominal> monominals = monominalsByExponent.Values.ToList();
             monominals.Sort();
 
-            Console.WriteLine($"Std form: {standard}");
-            Console.WriteLine($"Monominals: {string.Join(" | ", monominals)}");
+            float degree = monominals.Count == 0 ? 0 : monominals.Max(m => m.Exponent);
+            if (degree > 2)
+            {
+                Console.WriteLine("The polynomial degree is strictly greater than 2, I can't solve.");
+                return 1;
+            }
+
+            Console.WriteLine($"Monominals small: {string.Join(" | ", monominals)}");
+            Console.WriteLine($"Polynomial degree: {degree}");
         }
         else
         {
