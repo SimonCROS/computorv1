@@ -14,7 +14,7 @@ public class ParsingTests
         Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
     }
 
-    public Node Monominal(float coefficient, float exponent)
+    public Node Mono(float coefficient, float exponent)
     {
         return new MulNode(
             new NumberNode(coefficient),
@@ -32,10 +32,10 @@ public class ParsingTests
             new EqualNode(
                 new SubNode(
                     new AddNode(
-                        Monominal(5f, 0f),
-                        Monominal(4f, 1f)),
-                    Monominal(9.3f, 2f)),
-                Monominal(1f, 0f)),
+                        Mono(5f, 0f),
+                        Mono(4f, 1f)),
+                    Mono(9.3f, 2f)),
+                Mono(1f, 0f)),
             node);
     }
 
@@ -47,9 +47,9 @@ public class ParsingTests
         Assert.AreEqual(
             new EqualNode(
                 new AddNode(
-                    Monominal(5f, 0f),
-                    Monominal(4f, 1f)),
-                Monominal(4f, 0f)),
+                    Mono(5f, 0f),
+                    Mono(4f, 1f)),
+                Mono(4f, 0f)),
             node);
     }
 
@@ -63,11 +63,11 @@ public class ParsingTests
                 new SubNode(
                     new AddNode(
                         new SubNode(
-                            Monominal(8f, 0f),
-                            Monominal(6f, 1f)),
-                        Monominal(0f, 2f)),
-                    Monominal(5.6f, 3f)),
-                Monominal(3f, 0f)),
+                            Mono(8f, 0f),
+                            Mono(6f, 1f)),
+                        Mono(0f, 2f)),
+                    Mono(5.6f, 3f)),
+                Mono(3f, 0f)),
             node);
     }
 

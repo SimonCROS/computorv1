@@ -50,4 +50,48 @@ public static class Utils
             };
         return node;
     }
+
+    public static List<Monominal> ListMonominals(Node node)
+    {
+        List<Monominal> monominals = new();
+        ListMonominalsRec(node, monominals);
+        return monominals;
+    }
+
+    private static void ListMonominalsRec(Node current, List<Monominal> monominals, float sign = 1)
+    {
+        if (current is EqualNode)
+        {
+            throw new NotSupportedException("EqualNode should not be present here");
+        }
+        else if (current is AddNode or SubNode)
+        {
+            ListMonominalsRec(((BinaryOperatorNode)current).Left, monominals, sign);
+            ListMonominalsRec(((BinaryOperatorNode)current).Right, monominals, current is SubNode ? -sign : sign);
+        }
+        else if (current is MulNode mul)
+        {
+            NumberNode coefficient = (NumberNode)mul.Left;
+            if (mul.Right is PowNode powNode)
+            {
+                monominals.Add(new Monominal(coefficient.Value * sign, ((IdentifierNode)powNode.Left).Value, ((NumberNode)powNode.Right).Value));
+            }
+            else if (mul.Right is IdentifierNode identifierNode)
+            {
+                monominals.Add(new Monominal(coefficient.Value * sign, identifierNode.Value, 1));
+            }
+        }
+        else if (current is PowNode powNode)
+        {
+            monominals.Add(new Monominal(1 * sign, ((IdentifierNode)powNode.Left).Value, ((NumberNode)powNode.Right).Value));
+        }
+        else if (current is IdentifierNode identifierNode)
+        {
+            monominals.Add(new Monominal(1 * sign, identifierNode.Value, 1));
+        }
+        else if (current is NumberNode numberNode)
+        {
+            monominals.Add(new Monominal(numberNode.Value * sign, string.Empty, 0));
+        }
+    }
 }
