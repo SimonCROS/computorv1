@@ -16,25 +16,16 @@ if (new Lexer(args[0]).Tokenize(out List<Token> tokens))
 {
     if (new Parser(tokens).Parse(out Node? node))
     {
-        node = Utils.Simplify(node);
-        if (new Validator(maxIdentifiersCount: 1).Validate(node))
-        {
-            Console.WriteLine(node);
+        EqualNode equalNode = (EqualNode)node;
 
-            Node lhs = ((EqualNode)node).Left;
-            Node rhs = ((EqualNode)node).Right;
-            Console.WriteLine("LHS:");
-            foreach (Monominal monominal in Utils.ListMonominals(lhs))
-            {
-                Console.Write($"{monominal} ");
-            }
-            Console.WriteLine();
-            Console.WriteLine("RHS:");
-            foreach (Monominal monominal in Utils.ListMonominals(rhs))
-            {
-                Console.Write($"{monominal} ");
-            }
-            Console.WriteLine();
+        Node standard = Utils.Simplify(new SubNode(equalNode.Left, equalNode.Right));
+        if (new Validator(maxIdentifiersCount: 1).Validate(standard))
+        {
+            List<Monominal> monominals = Utils.ListMonominals(standard);
+            monominals.Sort();
+
+            Console.WriteLine($"Std form: {standard}");
+            Console.WriteLine($"Monominals: {string.Join(" | ", monominals)}");
         }
         else
         {

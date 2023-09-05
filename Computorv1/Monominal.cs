@@ -1,6 +1,6 @@
 namespace computorv1;
 
-public record struct Monominal(float Coefficient, string Identifier, float Exponent)
+public record struct Monominal(float Coefficient, string Identifier, float Exponent) : IComparable<Monominal>
 {
     public Monominal(float coefficient)
         : this(coefficient, string.Empty, 0)
@@ -18,6 +18,13 @@ public record struct Monominal(float Coefficient, string Identifier, float Expon
             return $"{Coefficient}";
         if (Exponent == 1)
             return $"{Coefficient}{Identifier}";
-        return $"({Coefficient }{Identifier} ^ {Exponent})";
+        return $"{Coefficient }{Identifier} ^ {Exponent}";
+    }
+
+    public readonly int CompareTo(Monominal other)
+    {
+        if (Exponent == other.Exponent)
+            return 0;
+        return Exponent > other.Exponent ? -1 : 1;
     }
 }

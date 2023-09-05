@@ -16,7 +16,7 @@ public class LexingTests
     [TestMethod]
     public void Subject1NoBlanks()
     {
-        Assert.IsTrue(new Lexer("5 * X^0 + 4 * X^1 - 9.3 * X^2 = 1 * X^0").Tokenize(out List<Token> tokens));
+        Assert.IsTrue(new Lexer("5*X^0+4*X^1-9.3*X^2=1*X^0").Tokenize(out List<Token> tokens));
         CollectionAssert.AreEqual(
             new List<Token>()
             {
