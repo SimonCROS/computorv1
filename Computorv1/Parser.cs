@@ -154,8 +154,13 @@ public class Parser
             _tokens.MoveNext();
 
             // Implement only if content is a number, and do not use NegateNode
-            if (Term(out Node? next) && next is NumberNode childNumberNode)
+            if (!Term(out Node? next))
+                return false;
+
+            if (next is NumberNode childNumberNode)
                 result = new NumberNode(-childNumberNode.Value);
+            else if (next is IdentifierNode childIdentifierNode)
+                result = new MulNode(new NumberNode(-1), childIdentifierNode);
             else
                 return false;
         }

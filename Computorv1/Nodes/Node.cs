@@ -4,7 +4,7 @@ public abstract record class Node;
 
 // public abstract record class UnaryOperatorNode(Node Child, char Symbol) : Node
 // {
-//     public sealed override string ToString() => $"({Symbol}{Child})";
+//     public sealed override string ToString() => $"{Symbol}{Child}";
 // }
 
 public abstract record class BinaryOperatorNode(Node Left, Node Right, char Symbol) : Node

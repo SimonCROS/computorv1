@@ -35,6 +35,10 @@ public static class Utils
                 (Node left, PowNode right) when left == right.Left && right.Right is NumberNode exp => new PowNode(left, new NumberNode(exp.Value + 1)),
                 (PowNode left, Node right) when right == left.Left && left.Right is NumberNode exp => new PowNode(right, new NumberNode(exp.Value + 1)),
                 (Node left, Node right) when left == right => new PowNode(left, new NumberNode(2)),
+                (NumberNode left, MulNode right) when right.Left is NumberNode childNumber => new MulNode(new NumberNode(left.Value * childNumber.Value), right.Right),
+                (NumberNode left, MulNode right) when right.Right is NumberNode childNumber => new MulNode(new NumberNode(left.Value * childNumber.Value), right.Left),
+                (MulNode left, NumberNode right) when left.Left is NumberNode childNumber => new MulNode(new NumberNode(right.Value * childNumber.Value), left.Right),
+                (MulNode left, NumberNode right) when left.Right is NumberNode childNumber => new MulNode(new NumberNode(right.Value * childNumber.Value), left.Left),
                 (Node left, NumberNode right) => new MulNode(right, left),
                 (Node left, Node right) => new MulNode(left, right)
             };
