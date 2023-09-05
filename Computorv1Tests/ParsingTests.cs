@@ -120,4 +120,11 @@ public class ParsingTests
         Assert.IsTrue(new Parser(tokens).Parse(out Node? node));
         Assert.AreEqual(new EqualNode(new NumberNode(2f), new NumberNode(8f)), node);
     }
+
+    [TestMethod]
+    public void MinusX()
+    {
+        Assert.IsTrue(new Lexer("-x = 4").Tokenize(out List<Token> tokens));
+        Assert.IsTrue(new Parser(tokens).Parse(out _));
+    }
 }
