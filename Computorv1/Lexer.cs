@@ -4,7 +4,7 @@ using computorv1.Collections;
 using computorv1.Exceptions;
 using computorv1.Tokens;
 
-public struct Lexer
+public readonly struct Lexer
 {
     private readonly LexerEnumerator _chars;
 

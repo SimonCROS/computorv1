@@ -5,7 +5,7 @@ using computorv1.Collections;
 using computorv1.Nodes;
 using computorv1.Tokens;
 
-public class Parser
+public readonly struct Parser
 {
     private readonly TokenEnumerator _tokens;
 

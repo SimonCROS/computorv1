@@ -7,7 +7,7 @@ public static class Utils
     public static Node Simplify(Node node)
     {
         if (node is EqualNode equal)
-            return new EqualNode(Simplify(equal.Left), Simplify(equal.Right));
+            return Simplify(new SubNode(Simplify(equal.Left), Simplify(equal.Right)));
         if (node is AddNode add)
             return (Simplify(add.Left), Simplify(add.Right)) switch
             {
@@ -57,8 +57,20 @@ public static class Utils
 
     public static List<Monominal> ListMonominals(Node node)
     {
-        List<Monominal> monominals = new();
-        ListMonominalsRec(node, monominals);
+        List<Monominal> raw = new();
+        ListMonominalsRec(node, raw);
+
+        Dictionary<float, Monominal> monominalsByExponent = new();
+        foreach (Monominal monominal in raw)
+        {
+            if (monominalsByExponent.TryGetValue(monominal.Exponent, out Monominal existingMonominal))
+                monominalsByExponent[monominal.Exponent] = new Monominal(existingMonominal.Coefficient + monominal.Coefficient, monominal.Identifier, monominal.Exponent);
+            else
+                monominalsByExponent.Add(monominal.Exponent, monominal);
+        }
+
+        List<Monominal> monominals = monominalsByExponent.Values.Where(m => m.Coefficient != 0).ToList();
+        monominals.Sort();
         return monominals;
     }
 
