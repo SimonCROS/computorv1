@@ -18,7 +18,7 @@ public class FunctionalTests
         (int code, string output) = CapturedOutput("5 * X^0 + 4 * X^1 - 9.3 * X^2 = 1 * X^0");
         Assert.AreEqual(0, code);
         Assert.AreEqual(
-            ExpectedOutput("5 + 4 * X - 9.3 * X ^ 2 - 1 = 0", 2, true, "0.9052389", "-0.47513145"),
+            ExpectedOutput("-9.3 * X^2 + 4 * X + 4 = 0", 2, true, "0.9052389", "-0.47513145"),
             output);
     }
 
@@ -28,7 +28,7 @@ public class FunctionalTests
         (int code, string output) = CapturedOutput("5 * X^0 + 4 * X^1 = 4 * X^0");
         Assert.AreEqual(0, code);
         Assert.AreEqual(
-            ExpectedOutput("5 + 4 * X - 4 = 0", 1, "-0.25"),
+            ExpectedOutput("4 * X + 1 = 0", 1, "-0.25"),
             output);
     }
 
@@ -38,7 +38,7 @@ public class FunctionalTests
         (int code, string output) = CapturedOutput("8 * X^0 - 6 * X^1 + 0 * X^2 - 5.6 * X^3 = 3 * X^0");
         Assert.AreEqual(1, code);
         Assert.AreEqual(
-            ExpectedNoSolutionOutput("8 - 6 * X - 5.6 * X ^ 3 - 3 = 0", 3, "The polynomial degree is strictly greater than 2, I can't solve."),
+            ExpectedNoSolutionOutput("-5.6 * X^3 - 6 * X + 5 = 0", 3, "The polynomial degree is strictly greater than 2, I can't solve."),
             output);
     }
 
@@ -48,17 +48,17 @@ public class FunctionalTests
         (int code, string output) = CapturedOutput("5 + 4 * X + X^2= X^2");
         Assert.AreEqual(0, code);
         Assert.AreEqual(
-            ExpectedOutput("5 + 4 * X + X ^ 2 - X ^ 2 = 0", 1, "-1.25"),
+            ExpectedOutput("4 * X + 5 = 0", 1, "-1.25"),
             output);
     }
 
     [TestMethod]
     public void X_Equal_X_Plus_2_NoSolution()
     {
-        (int code, string output) = CapturedOutput("x = x + 2");
+        (int code, string output) = CapturedOutput("x + 2 = x");
         Assert.AreEqual(0, code);
         Assert.AreEqual(
-            ExpectedNoSolutionOutput("x - x + 2 = 0", 0, "No solution"),
+            ExpectedNoSolutionOutput("2 = 0", 0, "No solution"),
             output);
     }
 

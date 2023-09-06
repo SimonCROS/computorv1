@@ -2,6 +2,8 @@ namespace computorv1;
 
 public record struct Monominal(float Coefficient, string Identifier, int Exponent) : IComparable<Monominal>
 {
+    public readonly bool IsNegative => float.IsNegative(Coefficient);
+
     public Monominal(float coefficient)
         : this(coefficient, string.Empty, 0)
     {
@@ -12,13 +14,18 @@ public record struct Monominal(float Coefficient, string Identifier, int Exponen
     {
     }
 
+    public readonly Monominal Negate()
+    {
+        return new Monominal(-Coefficient, Identifier, Exponent);
+    }
+
     public override readonly string ToString()
     {
         if (Exponent == 0)
             return $"{Coefficient}";
         if (Exponent == 1)
-            return $"{Coefficient}{Identifier}";
-        return $"{Coefficient }{Identifier} ^ {Exponent}";
+            return $"{Coefficient} * {Identifier}";
+        return $"{Coefficient} * {Identifier}^{Exponent}";
     }
 
     public readonly int CompareTo(Monominal other)

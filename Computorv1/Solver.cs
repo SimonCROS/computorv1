@@ -1,3 +1,4 @@
+using System.Text;
 using computorv1.Nodes;
 using computorv1.Tokens;
 
@@ -18,9 +19,10 @@ public static class Solver
         if (!new Validator(maxIdentifiersCount: 1).Validate(standard))
             return 1;
 
-        Console.WriteLine($"Reduced form: {standard} = 0");
-
         List<Monominal> monominals = Utils.ListMonominals(standard);
+
+        Console.WriteLine($"Reduced form: {GetReducedForm(monominals)} = 0");
+
         return Solve(monominals);
     }
 
@@ -83,5 +85,32 @@ public static class Solver
         }
 
         return 0;
+    }
+
+    public static string GetReducedForm(List<Monominal> monominals)
+    {
+        if (monominals.Count == 0)
+            return "0";
+
+        StringBuilder sb = new();
+        foreach (Monominal monominal in monominals)
+        {
+            if (monominal.Coefficient == 0)
+                continue;
+
+            if (sb.Length > 0)
+            {
+                if (!monominal.IsNegative)
+                    sb.Append($" + {monominal}");
+                else
+                    sb.Append($" - {monominal.Negate()}");
+            }
+            else
+            {
+                sb.Append(monominal);
+            }
+        }
+
+        return sb.ToString();
     }
 }
