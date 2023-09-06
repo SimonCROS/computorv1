@@ -43,6 +43,16 @@ public class FunctionalTests
     }
 
     [TestMethod]
+    public void NegativeDiscriminant()
+    {
+        (int code, string output) = CapturedOutput("5 * X^2 + 20 * X + 32 = 0");
+        Assert.AreEqual(0, code);
+        Assert.AreEqual(
+            ExpectedOutput("5 * X^2 + 20 * X + 32 = 0", 2, false, "-2 + 1.5491934i", "-2 - 1.5491934i"),
+            output);
+    }
+
+    [TestMethod]
     public void SubjectBonus()
     {
         (int code, string output) = CapturedOutput("5 + 4 * X + X^2= X^2");
