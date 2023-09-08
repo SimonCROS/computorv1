@@ -157,4 +157,12 @@ public class SimplifyingTests
         Assert.IsTrue(new Parser(tokens).Parse(out Node? node));
         Assert.AreEqual("X ^ 3 - 42", Utils.Simplify(node!).ToString());
     }
+
+    [TestMethod]
+    public void Pow_Zero_Zero()
+    {
+        Assert.IsTrue(new Lexer("0 ^ 0 = 1").Tokenize(out List<Token> tokens));
+        Assert.IsTrue(new Parser(tokens).Parse(out Node? node));
+        Assert.AreEqual("0", Utils.Simplify(node!).ToString());
+    }
 }

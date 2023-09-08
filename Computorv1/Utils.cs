@@ -45,7 +45,7 @@ public static class Utils
         if (node is PowNode pow)
             return (Simplify(pow.Left), Simplify(pow.Right)) switch
             {
-                (NumberNode left, NumberNode right) => new NumberNode(MathF.Pow(left.Value, right.Value)),
+                (NumberNode left, NumberNode right) when float.IsInteger(right.Value) => new NumberNode(MyMathF.Pow(left.Value, (int)right.Value)),
                 (NumberNode left, Node other) when left.Value == 1 => other,
                 (Node other, NumberNode right) when right.Value == 1 => other,
                 (NumberNode left, _) when left.Value == 0 => new NumberNode(1),

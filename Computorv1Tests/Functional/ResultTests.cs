@@ -4,7 +4,7 @@ using System.Globalization;
 using computorv1;
 
 [TestClass]
-public class FunctionalTests
+public class ResultTests
 {
     [TestInitialize]
     public void SetCulture()
