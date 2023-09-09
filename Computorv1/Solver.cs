@@ -46,7 +46,7 @@ public static class Solver
 
             if (discriminant > 0)
             {
-                float sqrtDiscriminant = MathF.Sqrt(discriminant);
+                float sqrtDiscriminant = MyMathF.Sqrt(discriminant);
                 float solution1 = (-b - sqrtDiscriminant) / (2 * a);
                 float solution2 = (-b + sqrtDiscriminant) / (2 * a);
 
@@ -61,7 +61,7 @@ public static class Solver
             }
             else
             {
-                float sqrtDiscriminant = MathF.Sqrt(-discriminant);
+                float sqrtDiscriminant = MyMathF.Sqrt(-discriminant);
                 
                 Console.WriteLine($"Discriminant is strictly negative, the two solutions are:");
                 Console.WriteLine($"{-b / (2 * a)} + {sqrtDiscriminant / (2 * a)}i");
