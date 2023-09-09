@@ -7,7 +7,7 @@ using Computorv1.Tokens;
 
 public readonly struct Parser
 {
-    private readonly TokenEnumerator _tokens;
+    private readonly PeekableEnumerator<Token> _tokens;
 
     public Parser(IReadOnlyList<Token> tokens)
     {

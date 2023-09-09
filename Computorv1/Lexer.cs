@@ -6,11 +6,11 @@ using Computorv1.Tokens;
 
 public readonly struct Lexer
 {
-    private readonly LexerEnumerator _chars;
+    private readonly PeekableEnumerator<char> _chars;
 
     public Lexer(string str)
     {
-        _chars = new(str);
+        _chars = new(str.ToList());
     }
 
     public bool Tokenize(out List<Token> tokens)
