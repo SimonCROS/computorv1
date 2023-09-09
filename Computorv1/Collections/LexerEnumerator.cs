@@ -2,7 +2,7 @@
 
 using System.Collections;
 
-public class LexerEnumerator : IEnumerator<char>
+public class LexerEnumerator : IEnumerator<char>, IDisposable
 {
     private string _str;
     private int _index;
@@ -57,6 +57,8 @@ public class LexerEnumerator : IEnumerator<char>
             _index = _str.Length;
         }
         _str = null!;
+
+        GC.SuppressFinalize(this);
     }
 
     public void Reset()

@@ -15,29 +15,11 @@ public class TokenEnumerator : IEnumerator<Token>
         Reset();
     }
 
-    public int Index => _index;
-
     public Token Current => _currentElement!;
 
     object IEnumerator.Current => Current;
 
     public Token? Peek() => _index < _tokens.Count - 1 ? _tokens[_index + 1] : default;
-
-    public bool MoveNextIf(Func<Token, bool> predicate)
-    {
-        if (_index < _tokens.Count - 1)
-        {
-            if (predicate.Invoke(_tokens[_index + 1]))
-            {
-                _index++;
-                _currentElement = _tokens[_index];
-                return true;
-            }
-            return false;
-        }
-        _index = _tokens.Count;
-        return false;
-    }
 
     public bool MoveNext()
     {
@@ -58,6 +40,8 @@ public class TokenEnumerator : IEnumerator<Token>
             _index = _tokens.Count;
         }
         _tokens = null!;
+
+        GC.SuppressFinalize(this);
     }
 
     public void Reset()

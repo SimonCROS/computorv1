@@ -57,10 +57,10 @@ public record class EqualNode(Node Left, Node Right) : BinaryOperatorNode(Left, 
 
 public record class IdentifierNode(string Value) : Node
 {
-    public override string ToString() => $"{Value}";
+    public override string ToString() => Value;
 }
 
 public record class NumberNode(float Value) : Node
 {
-    public override string ToString() => $"{Value}";
+    public override string ToString() => Value.ToString();
 }
