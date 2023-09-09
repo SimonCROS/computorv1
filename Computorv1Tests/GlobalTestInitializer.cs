@@ -3,7 +3,7 @@ namespace Computorv1Tests;
 using System.Globalization;
 
 [TestClass]
-class GlobalTestInitializer
+public class GlobalTestInitializer
 {
     [AssemblyInitialize]
     public static void SetCulture(TestContext _)

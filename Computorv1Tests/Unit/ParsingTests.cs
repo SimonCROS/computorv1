@@ -7,7 +7,7 @@ using Computorv1.Tokens;
 [TestClass]
 public class ParsingTests
 {
-    public Node Mono(float coefficient, float exponent)
+    public static Node Mono(float coefficient, float exponent)
     {
         return new MulNode(
             new NumberNode(coefficient),
