@@ -143,4 +143,20 @@ public class MathTests
     {
         Assert.AreEqual(3031.20718096, MyMathF.Pow(7.42f, 4), 0.0001f);
     }
+
+    [TestMethod]
+    public void Min_With_Integer()
+    {
+        Assert.AreEqual(1, MyMathF.Min(1, 2));
+        Assert.AreEqual(1, MyMathF.Min(2, 1));
+        Assert.AreEqual(1, MyMathF.Min(1, 1));
+    }
+
+    [TestMethod]
+    public void Max_With_Integer()
+    {
+        Assert.AreEqual(2, MyMathF.Max(1, 2));
+        Assert.AreEqual(2, MyMathF.Max(2, 1));
+        Assert.AreEqual(1, MyMathF.Max(1, 1));
+    }
 }
