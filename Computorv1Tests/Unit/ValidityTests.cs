@@ -1,6 +1,5 @@
 namespace Computorv1Tests.Unit;
 
-using System.Globalization;
 using Computorv1;
 using Computorv1.Nodes;
 using Computorv1.Tokens;
@@ -8,12 +7,6 @@ using Computorv1.Tokens;
 [TestClass]
 public class ValidityTests
 {
-    [TestInitialize]
-    public void SetCulture()
-    {
-        Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture; 
-    }
-
     [TestMethod]
     public void MultipleIdentifiers()
     {

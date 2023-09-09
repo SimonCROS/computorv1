@@ -1,17 +1,10 @@
 namespace Computorv1Tests.Functional;
 
-using System.Globalization;
 using Computorv1;
 
 [TestClass]
 public class ResultTests
 {
-    [TestInitialize]
-    public void SetCulture()
-    {
-        Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
-    }
-
     [TestMethod]
     public void Subject1()
     {
