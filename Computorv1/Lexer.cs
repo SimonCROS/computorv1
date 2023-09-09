@@ -26,7 +26,7 @@ public readonly struct Lexer
         }
         catch (ParsingException ex)
         {
-            Console.WriteLine($"{ex.Message}");
+            Console.WriteLine(ex.Message);
             return false;
         }
 

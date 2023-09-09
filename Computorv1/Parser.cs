@@ -154,19 +154,15 @@ public readonly struct Parser
             _tokens.MoveNext();
 
             // Implement only if content is a number, and do not use NegateNode
-            if (!Term(out Node? next))
-                return false;
-
-            if (next is NumberNode childNumberNode)
-                result = new NumberNode(-childNumberNode.Value);
-            else if (next is IdentifierNode childIdentifierNode)
-                result = new SubNode(new NumberNode(0), childIdentifierNode);
-            else
-                return false;
+            if (Term(out Node? next))
+            {
+                if (next is NumberNode childNumberNode)
+                    result = new NumberNode(-childNumberNode.Value);
+                else if (next is IdentifierNode childIdentifierNode)
+                    result = new SubNode(new NumberNode(0), childIdentifierNode);
+            }
         }
-        else
-            return false;
 
-        return true;
+        return result is not null;
     }
 }

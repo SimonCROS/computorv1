@@ -173,6 +173,22 @@ public class ParsingTests
     }
 
     [TestMethod]
+    public void Add_After_Sub()
+    {
+        (bool Ok, string Output) = CapturedOutput(new List<Token>
+        {
+            new NumberToken(0f),
+            new SubToken(),
+            new AddToken(),
+            new NumberToken(5f),
+            new EqualToken(),
+            new NumberToken(5f),
+        }, out Node? _);
+        Assert.IsFalse(Ok);
+        Assert.AreEqual("Error: unexpected token: +\n", Output);
+    }
+
+    [TestMethod]
     public void Nothing_Before_Equal()
     {
         (bool Ok, string Output) = CapturedOutput(new List<Token>

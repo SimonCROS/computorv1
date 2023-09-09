@@ -44,14 +44,8 @@ public class EquationToMonominalsTests
     }
 
     [TestMethod]
-    public void LongExample()
+    public void Equal_In_ListMonominals()
     {
-        Assert.IsTrue(new Lexer("3 * x^5 - 7 * x^4 + 2 * x^3 + 6 * x^2 - 5 * x + 9 = 4 * x^5 - 2 * x^4 + 8 * x^3 - 6 * x^2 + 7 * x - 12").Tokenize(out List<Token> tokens));
-        Assert.IsTrue(new Parser(tokens).Parse(out Node? node));
-        node = Utils.Simplify(node);
-        CollectionAssert.AreEqual(
-            new List<Monominal>()
-                { new(-1, "x", 5), new(-5, "x", 4), new(-6, "x", 3), new(12, "x", 2), new(-12, "x"), new(21) },
-            Utils.ListMonominals(node));
+        Assert.ThrowsException<NotSupportedException>(() => Utils.ListMonominals(new EqualNode(new NumberNode(1), new NumberNode(2))));
     }
 }

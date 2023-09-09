@@ -76,11 +76,7 @@ public static class Utils
 
     private static void ListMonominalsRec(Node current, List<Monominal> monominals, float sign = 1)
     {
-        if (current is EqualNode)
-        {
-            throw new NotSupportedException("EqualNode should not be present here");
-        }
-        else if (current is AddNode or SubNode)
+        if (current is AddNode or SubNode)
         {
             ListMonominalsRec(((BinaryOperatorNode)current).Left, monominals, sign);
             ListMonominalsRec(((BinaryOperatorNode)current).Right, monominals, current is SubNode ? -sign : sign);
@@ -108,6 +104,10 @@ public static class Utils
         else if (current is NumberNode numberNode)
         {
             monominals.Add(new Monominal(numberNode.Value * sign, string.Empty, 0));
+        }
+        else
+        {
+            throw new NotSupportedException(current.GetType().Name + " should not be present here");
         }
     }
 }
