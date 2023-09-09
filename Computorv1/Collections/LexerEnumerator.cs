@@ -1,4 +1,4 @@
-﻿namespace computorv1.Collections;
+﻿namespace Computorv1.Collections;
 
 using System.Collections;
 

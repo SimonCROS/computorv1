@@ -1,6 +1,6 @@
-﻿using System.Text;
+﻿namespace Computorv1.Nodes;
 
-namespace computorv1.Nodes;
+using System.Text;
 
 public abstract record class Node;
 

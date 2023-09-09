@@ -1,9 +1,9 @@
-﻿namespace computorv1;
+﻿namespace Computorv1;
 
 using System.Diagnostics.CodeAnalysis;
-using computorv1.Collections;
-using computorv1.Nodes;
-using computorv1.Tokens;
+using Computorv1.Collections;
+using Computorv1.Nodes;
+using Computorv1.Tokens;
 
 public readonly struct Parser
 {

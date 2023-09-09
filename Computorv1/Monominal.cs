@@ -1,6 +1,6 @@
-using System.Text;
+namespace Computorv1;
 
-namespace computorv1;
+using System.Text;
 
 public record struct Monominal(float Coefficient, string Identifier, int Exponent) : IComparable<Monominal>
 {

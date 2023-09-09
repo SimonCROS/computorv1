@@ -1,4 +1,4 @@
-namespace computorv1;
+namespace Computorv1;
 
 public static class MyMathF
 {

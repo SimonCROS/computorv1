@@ -1,8 +1,8 @@
-﻿namespace computorv1;
+﻿namespace Computorv1;
 
-using computorv1.Collections;
-using computorv1.Exceptions;
-using computorv1.Tokens;
+using Computorv1.Collections;
+using Computorv1.Exceptions;
+using Computorv1.Tokens;
 
 public readonly struct Lexer
 {

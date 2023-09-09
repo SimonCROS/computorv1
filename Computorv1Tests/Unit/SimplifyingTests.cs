@@ -1,9 +1,9 @@
 namespace Computorv1Tests.Unit;
 
 using System.Globalization;
-using computorv1;
-using computorv1.Tokens;
-using computorv1.Nodes;
+using Computorv1;
+using Computorv1.Tokens;
+using Computorv1.Nodes;
 
 [TestClass]
 public class SimplifyingTests

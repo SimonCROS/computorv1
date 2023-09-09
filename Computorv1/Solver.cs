@@ -1,8 +1,8 @@
-using System.Text;
-using computorv1.Nodes;
-using computorv1.Tokens;
+namespace Computorv1;
 
-namespace computorv1;
+using System.Text;
+using Computorv1.Nodes;
+using Computorv1.Tokens;
 
 public static class Solver
 {
@@ -62,7 +62,7 @@ public static class Solver
             else
             {
                 float sqrtDiscriminant = MyMathF.Sqrt(-discriminant);
-                
+
                 Console.WriteLine($"Discriminant is strictly negative, the two solutions are:");
                 Console.WriteLine($"{-b / (2 * a)} + {sqrtDiscriminant / (2 * a)}i");
                 Console.WriteLine($"{-b / (2 * a)} - {sqrtDiscriminant / (2 * a)}i");

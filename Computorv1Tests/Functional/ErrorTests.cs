@@ -1,7 +1,7 @@
 namespace Computorv1Tests.Functional;
 
 using System.Globalization;
-using computorv1;
+using Computorv1;
 
 [TestClass]
 public class ErrorTests

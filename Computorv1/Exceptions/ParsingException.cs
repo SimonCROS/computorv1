@@ -1,4 +1,4 @@
-﻿namespace computorv1.Exceptions;
+﻿namespace Computorv1.Exceptions;
 
 [Serializable]
 public class ParsingException : Exception

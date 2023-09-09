@@ -1,6 +1,6 @@
-namespace computorv1;
+namespace Computorv1;
 
-using computorv1.Nodes;
+using Computorv1.Nodes;
 
 public class Validator
 {

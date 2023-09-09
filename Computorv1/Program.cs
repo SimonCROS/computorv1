@@ -1,5 +1,5 @@
 ﻿using System.Globalization;
-using computorv1;
+using Computorv1;
 
 CultureInfo.DefaultThreadCurrentCulture = CultureInfo.InvariantCulture;
 

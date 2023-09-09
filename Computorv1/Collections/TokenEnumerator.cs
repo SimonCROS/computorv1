@@ -1,7 +1,7 @@
-﻿namespace computorv1.Collections;
+﻿namespace Computorv1.Collections;
 
 using System.Collections;
-using computorv1.Tokens;
+using Computorv1.Tokens;
 
 public class TokenEnumerator : IEnumerator<Token>
 {

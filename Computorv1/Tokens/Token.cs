@@ -1,4 +1,4 @@
-﻿namespace computorv1.Tokens;
+﻿namespace Computorv1.Tokens;
 
 public abstract record class Token
 {
