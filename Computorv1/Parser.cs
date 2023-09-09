@@ -160,7 +160,7 @@ public readonly struct Parser
             if (next is NumberNode childNumberNode)
                 result = new NumberNode(-childNumberNode.Value);
             else if (next is IdentifierNode childIdentifierNode)
-                result = new MulNode(new NumberNode(-1), childIdentifierNode);
+                result = new SubNode(new NumberNode(0), childIdentifierNode);
             else
                 return false;
         }

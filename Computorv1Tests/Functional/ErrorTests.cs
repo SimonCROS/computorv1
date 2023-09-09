@@ -10,7 +10,7 @@ public class ErrorTests
     {
         (int code, string output) = CapturedOutput("5 ^ 2.5 = x");
         Assert.AreEqual(1, code);
-        Assert.AreEqual("Error: Invalid expression: cannot use a floating number as exponent\n", output);
+        Assert.AreEqual("Error: cannot use a floating number as exponent\n", output);
     }
 
     [TestMethod]

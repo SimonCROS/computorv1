@@ -18,7 +18,7 @@ public class Validator
         _identifiers.Clear();
         try
         {
-            InternalValidate(node, 0, false, false);
+            InternalValidate(node, 0, false);
             return true;
         }
         catch (Exception ex)
@@ -28,48 +28,44 @@ public class Validator
         }
     }
 
-    private void InternalValidate(Node node, int level, bool inMul, bool exponent)
+    private void InternalValidate(Node node, int level, bool inMul)
     {
         switch (node)
         {
             case EqualNode equalNode:
                 if (level != 0)
-                    throw new Exception("Invalid expression: = should be on the top level");
-                InternalValidate(equalNode.Left, level + 1, inMul, exponent);
-                InternalValidate(equalNode.Right, level + 1, inMul, exponent);
+                    throw new Exception("= should be on the top level");
+                InternalValidate(equalNode.Left, level + 1, inMul);
+                InternalValidate(equalNode.Right, level + 1, inMul);
                 break;
             case AddNode or SubNode:
-                if (inMul || exponent)
-                    throw new Exception("Invalid expression: non constant nested + or -");
-                InternalValidate(((BinaryOperatorNode)node).Left, level + 1, inMul, exponent);
-                InternalValidate(((BinaryOperatorNode)node).Right, level + 1, inMul, exponent);
+                if (inMul)
+                    throw new Exception("addition or subtraction should not be inside a multiplication");
+                InternalValidate(((BinaryOperatorNode)node).Left, level + 1, inMul);
+                InternalValidate(((BinaryOperatorNode)node).Right, level + 1, inMul);
                 break;
             case MulNode mulNode:
-                if (inMul || exponent)
-                    throw new Exception("Invalid expression: non constant nested multiplication");
-                InternalValidate(mulNode.Left, level + 1, true, exponent);
-                InternalValidate(mulNode.Right, level + 1, true, exponent);
+                if (inMul)
+                    throw new Exception("non constant nested multiplication");
+                InternalValidate(mulNode.Left, level + 1, true);
+                InternalValidate(mulNode.Right, level + 1, true);
                 break;
             case PowNode powNode:
-                if (exponent)
-                    throw new Exception("Invalid expression: non constant nested pow");
-                InternalValidate(powNode.Left, level + 1, inMul, exponent);
-                InternalValidate(powNode.Right, level + 1, inMul, true);
+                if (powNode.Right is not NumberNode)
+                    throw new Exception("a const number must be used as exponent");
+                if (!float.IsInteger(((NumberNode)powNode.Right).Value))
+                    throw new Exception("cannot use a floating number as exponent");
+                InternalValidate(powNode.Left, level + 1, inMul);
+                InternalValidate(powNode.Right, level + 1, inMul);
                 break;
             case IdentifierNode identifierNode:
-                if (exponent)
-                    throw new Exception($"Invalid expression: cannot use {identifierNode.Value} as exponent");
                 if (!_identifiers.Contains(identifierNode.Value))
                 {
                     if (_identifiers.Count >= _maxIdentifiersCount)
-                        throw new Exception($"Invalid expression: too many identifiers (max {_maxIdentifiersCount})");
+                        throw new Exception($"too many identifiers (max {_maxIdentifiersCount})");
                     else
                         _identifiers.Add(identifierNode.Value);
                 }
-                break;
-            case NumberNode numberNode:
-                if (exponent && !float.IsInteger(numberNode.Value))
-                    throw new Exception("Invalid expression: cannot use a floating number as exponent");
                 break;
             default:
                 return;
