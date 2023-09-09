@@ -43,6 +43,16 @@ public class ResultTests
     }
 
     [TestMethod]
+    public void Subject2_Modified()
+    {
+        (int code, string output) = CapturedOutput("5 * X^2 + 4 * X^1 = 4 * X^2");
+        Assert.AreEqual(0, code);
+        Assert.AreEqual(
+            ExpectedOutput("X^2 + 4 * X = 0", 2, true, "-4", "0"),
+            output);
+    }
+
+    [TestMethod]
     public void NegativeDiscriminant()
     {
         (int code, string output) = CapturedOutput("5 * X^2 + 20 * X + 32 = 0");

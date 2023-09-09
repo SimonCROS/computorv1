@@ -1,3 +1,5 @@
+using System.Text;
+
 namespace computorv1;
 
 public record struct Monominal(float Coefficient, string Identifier, int Exponent) : IComparable<Monominal>
@@ -21,11 +23,22 @@ public record struct Monominal(float Coefficient, string Identifier, int Exponen
 
     public override readonly string ToString()
     {
+        StringBuilder sb = new();
+
+        if (Coefficient == 0)
+            return "0";
         if (Exponent == 0)
-            return $"{Coefficient}";
+            return Coefficient.ToString();
+
+        if (Coefficient != 1)
+            sb.Append($"{Coefficient} * ");
+
         if (Exponent == 1)
-            return $"{Coefficient} * {Identifier}";
-        return $"{Coefficient} * {Identifier}^{Exponent}";
+            sb.Append(Identifier);
+        else
+            sb.Append($"{Identifier}^{Exponent}");
+
+        return sb.ToString();
     }
 
     public readonly int CompareTo(Monominal other)
