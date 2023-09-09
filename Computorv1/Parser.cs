@@ -21,12 +21,12 @@ public readonly struct Parser
         bool ret = Assignation(out EqualNode? equal);
         if (_tokens.MoveNext() && _tokens.Current is not null)
         {
-            Console.WriteLine($"Unexpected token: {_tokens.Current}");
+            Console.WriteLine($"Error: unexpected token: {_tokens.Current}");
             return false;
         }
         if (!ret)
         {
-            Console.WriteLine($"Unexpected end of file");
+            Console.WriteLine($"Error: unexpected end of file");
             return false;
         }
         result = equal!;

@@ -66,7 +66,9 @@ public readonly struct Lexer
         {
             return new NumberToken(number);
         }
-        throw new ParsingException($"Error: unexpected token at pos {_chars.Index + 1}: {_chars.Peek()}");
+
+        _chars.MoveNext();
+        throw new ParsingException($"Error: unexpected token at pos {_chars.Index + 1}: {_chars.Current}");
     }
 
     private bool ReadIdentifier(out string identifier)

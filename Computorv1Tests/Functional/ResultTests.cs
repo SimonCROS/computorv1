@@ -46,6 +46,16 @@ public class ResultTests
     }
 
     [TestMethod]
+    public void Degree_2_One_Solution()
+    {
+        (int code, string output) = CapturedOutput("5 * X^2 + 4 * X^1 = -0.8");
+        Assert.AreEqual(0, code);
+        Assert.AreEqual(
+            ExpectedOutput("5 * X^2 + 4 * X + 0.8 = 0", 2, "-0.4"),
+            output);
+    }
+
+    [TestMethod]
     public void NegativeDiscriminant()
     {
         (int code, string output) = CapturedOutput("5 * X^2 + 20 * X + 32 = 0");
@@ -72,6 +82,16 @@ public class ResultTests
         Assert.AreEqual(0, code);
         Assert.AreEqual(
             ExpectedNoSolutionOutput("2 = 0", 0, "No solution"),
+            output);
+    }
+
+    [TestMethod]
+    public void NoMonominals()
+    {
+        (int code, string output) = CapturedOutput("x = x");
+        Assert.AreEqual(0, code);
+        Assert.AreEqual(
+            ExpectedNoSolutionOutput("0 = 0", 0, "All real numbers are solution"),
             output);
     }
 

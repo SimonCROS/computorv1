@@ -26,7 +26,31 @@ public static class Solver
         return Solve(monominals);
     }
 
-    public static int Solve(List<Monominal> monominals)
+    public static string GetReducedForm(List<Monominal> monominals)
+    {
+        StringBuilder sb = new();
+        foreach (Monominal monominal in monominals)
+        {
+            if (monominal.Coefficient == 0)
+                continue;
+
+            if (sb.Length > 0)
+            {
+                if (!monominal.IsNegative)
+                    sb.Append($" + {monominal}");
+                else
+                    sb.Append($" - {monominal.Negate()}");
+            }
+            else
+            {
+                sb.Append(monominal);
+            }
+        }
+
+        return sb.Length == 0 ? "0" : sb.ToString();
+    }
+
+    private static int Solve(List<Monominal> monominals)
     {
         float degree = monominals.Count == 0 ? 0 : monominals.Max(m => m.Exponent);
         Console.WriteLine($"Polynomial degree: {degree}");
@@ -85,32 +109,5 @@ public static class Solver
         }
 
         return 0;
-    }
-
-    public static string GetReducedForm(List<Monominal> monominals)
-    {
-        if (monominals.Count == 0)
-            return "0";
-
-        StringBuilder sb = new();
-        foreach (Monominal monominal in monominals)
-        {
-            if (monominal.Coefficient == 0)
-                continue;
-
-            if (sb.Length > 0)
-            {
-                if (!monominal.IsNegative)
-                    sb.Append($" + {monominal}");
-                else
-                    sb.Append($" - {monominal.Negate()}");
-            }
-            else
-            {
-                sb.Append(monominal);
-            }
-        }
-
-        return sb.ToString();
     }
 }

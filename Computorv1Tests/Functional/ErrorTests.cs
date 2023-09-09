@@ -12,7 +12,23 @@ public class ErrorTests
         Assert.AreEqual(1, code);
         Assert.AreEqual("Error: Invalid expression: cannot use a floating number as exponent\n", output);
     }
-    
+
+    [TestMethod]
+    public void TokenizerError()
+    {
+        (int code, string output) = CapturedOutput("5 _^ 2 = x");
+        Assert.AreEqual(1, code);
+        Assert.AreEqual("Error: unexpected token at pos 3: _\n", output);
+    }
+
+    [TestMethod]
+    public void ParsingError()
+    {
+        (int code, string output) = CapturedOutput("1 = 2 = 3");
+        Assert.AreEqual(1, code);
+        Assert.AreEqual("Error: unexpected token: =\n", output);
+    }
+
     private static (int Code, string Output) CapturedOutput(string equation)
     {
         TextWriter originalStdOut = Console.Out;

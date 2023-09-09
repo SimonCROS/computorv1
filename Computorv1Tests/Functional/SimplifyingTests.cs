@@ -160,18 +160,52 @@ public class SimplifyingTests
     }
 
     [TestMethod]
-    public void Multiplication_Multiplication_Number_Identifier_Number()
+    public void Nested_Multiplication_With_One_Identifier()
     {
-        Assert.IsTrue(new Lexer("1 * x * 3 = 6").Tokenize(out List<Token> tokens));
-        Assert.IsTrue(new Parser(tokens).Parse(out Node? node));
-        Assert.AreEqual("3 * x - 6", Utils.Simplify(node!).ToString());
+        Assert.AreEqual("6 * x", Utils.Simplify(
+            new MulNode(
+                new MulNode(new NumberNode(3), new IdentifierNode("x")),
+                new NumberNode(2)
+            )).ToString());
+        Assert.AreEqual("6 * x", Utils.Simplify(
+            new MulNode(
+                new MulNode(new IdentifierNode("x"), new NumberNode(3)),
+                new NumberNode(2)
+            )).ToString());
+        Assert.AreEqual("6 * x", Utils.Simplify(
+            new MulNode(
+                new NumberNode(2),
+                new MulNode(new NumberNode(3), new IdentifierNode("x"))
+            )).ToString());
+        Assert.AreEqual("6 * x", Utils.Simplify(
+            new MulNode(
+                new NumberNode(2),
+                new MulNode(new IdentifierNode("x"), new NumberNode(3))
+            )).ToString());
     }
 
     [TestMethod]
-    public void Multiplication_Multiplication_Identifier_Number_Number()
+    public void Nested_Multiplication_With_Two_Identifiers()
     {
-        Assert.IsTrue(new Lexer("x * 1 * 3 = 6").Tokenize(out List<Token> tokens));
-        Assert.IsTrue(new Parser(tokens).Parse(out Node? node));
-        Assert.AreEqual("3 * x - 6", Utils.Simplify(node!).ToString());
+        Assert.AreEqual("2 * y * x", Utils.Simplify(
+            new MulNode(
+                new MulNode(new IdentifierNode("y"), new IdentifierNode("x")),
+                new NumberNode(2)
+            )).ToString());
+        Assert.AreEqual("2 * x * y", Utils.Simplify(
+            new MulNode(
+                new MulNode(new IdentifierNode("x"), new IdentifierNode("y")),
+                new NumberNode(2)
+            )).ToString());
+        Assert.AreEqual("2 * y * x", Utils.Simplify(
+            new MulNode(
+                new NumberNode(2),
+                new MulNode(new IdentifierNode("y"), new IdentifierNode("x"))
+            )).ToString());
+        Assert.AreEqual("2 * x * y", Utils.Simplify(
+            new MulNode(
+                new NumberNode(2),
+                new MulNode(new IdentifierNode("x"), new IdentifierNode("y"))
+            )).ToString());
     }
 }
