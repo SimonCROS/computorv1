@@ -1,4 +1,4 @@
-﻿namespace Computorv1Tests.Unit;
+﻿namespace Computorv1Tests.Functional;
 
 using Computorv1;
 using Computorv1.Tokens;

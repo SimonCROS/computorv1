@@ -1,4 +1,4 @@
-namespace Computorv1Tests.Unit;
+namespace Computorv1Tests.Functional;
 
 using Computorv1;
 using Computorv1.Tokens;
@@ -157,5 +157,21 @@ public class SimplifyingTests
         Assert.IsTrue(new Lexer("0 ^ 0 = 1").Tokenize(out List<Token> tokens));
         Assert.IsTrue(new Parser(tokens).Parse(out Node? node));
         Assert.AreEqual("0", Utils.Simplify(node!).ToString());
+    }
+
+    [TestMethod]
+    public void Multiplication_Multiplication_Number_Identifier_Number()
+    {
+        Assert.IsTrue(new Lexer("1 * x * 3 = 6").Tokenize(out List<Token> tokens));
+        Assert.IsTrue(new Parser(tokens).Parse(out Node? node));
+        Assert.AreEqual("3 * x - 6", Utils.Simplify(node!).ToString());
+    }
+
+    [TestMethod]
+    public void Multiplication_Multiplication_Identifier_Number_Number()
+    {
+        Assert.IsTrue(new Lexer("x * 1 * 3 = 6").Tokenize(out List<Token> tokens));
+        Assert.IsTrue(new Parser(tokens).Parse(out Node? node));
+        Assert.AreEqual("3 * x - 6", Utils.Simplify(node!).ToString());
     }
 }
