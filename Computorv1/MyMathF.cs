@@ -2,7 +2,7 @@ namespace Computorv1;
 
 public static class MyMathF
 {
-    public static float Pow(float x, int n)
+    public static float Pow(float x, uint n)
     {
         float pow = 1F;
 

@@ -53,6 +53,8 @@ public class Validator
             case PowNode powNode:
                 if (powNode.Right is not NumberNode)
                     throw new Exception("a const number must be used as exponent");
+                if (!float.IsPositive(((NumberNode)powNode.Right).Value))
+                    throw new Exception("cannot use a negative number as exponent");
                 if (!float.IsInteger(((NumberNode)powNode.Right).Value))
                     throw new Exception("cannot use a floating number as exponent");
                 InternalValidate(powNode.Left, level + 1, inMul);
